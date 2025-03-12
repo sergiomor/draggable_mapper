@@ -5,5 +5,5 @@ id: dme_marker
 label: 'Map Marker'
 icon_uuid: null
 icon_default: null
-description: 'A marker for the draggable map entity.'
+description: 'A marker for the draggable mapper entity.'
 behavior_plugins: {  }
