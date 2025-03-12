@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_dme_marker_title
+    - paragraphs.paragraphs_type.dme_marker
+id: paragraph.dme_marker.field_dme_marker_title
+field_name: field_dme_marker_title
+entity_type: paragraph
+bundle: dme_marker
+label: Title
+description: 'The title of the marker.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

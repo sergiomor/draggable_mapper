@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - draggable_map_entity
+    - entity_reference_revisions
+    - paragraphs
+id: draggable_map_entity.field_dme_marker
+field_name: field_dme_marker
+entity_type: draggable_map_entity
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

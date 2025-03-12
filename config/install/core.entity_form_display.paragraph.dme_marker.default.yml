@@ -1,0 +1,45 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.dme_marker.field_dme_marker_description
+    - field.field.paragraph.dme_marker.field_dme_marker_icon
+    - field.field.paragraph.dme_marker.field_dme_marker_title
+    - field.field.paragraph.dme_marker.field_dme_marker_x
+    - field.field.paragraph.dme_marker.field_dme_marker_y
+    - paragraphs.paragraphs_type.dme_marker
+  module:
+    - image
+    - text
+id: paragraph.dme_marker.default
+targetEntityType: paragraph
+bundle: dme_marker
+mode: default
+content:
+  field_dme_marker_description:
+    type: text_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {}
+  field_dme_marker_icon:
+    type: image_image
+    weight: 3
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {}
+  field_dme_marker_title:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+hidden:
+  field_dme_marker_x: true
+  field_dme_marker_y: true

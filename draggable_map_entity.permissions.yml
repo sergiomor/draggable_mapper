@@ -1,0 +1,20 @@
+administer draggable map entity:
+  title: 'Administer Draggable Map Entity settings'
+  description: 'Allow to access the administration form to configure Draggable Map Entity.'
+  restrict access: true
+
+add draggable map entity:
+  title: 'Create new Draggable Map Entity'
+  description: 'Allow users to create new Draggable Map Entity content.'
+
+view draggable map entity:
+  title: 'View Draggable Map Entity'
+  description: 'Allow users to view Draggable Map Entity content.'
+
+edit draggable map entity:
+  title: 'Edit Draggable Map Entity'
+  description: 'Allow users to edit Draggable Map Entity content.'
+
+delete draggable map entity:
+  title: 'Delete Draggable Map Entity'
+  description: 'Allow users to delete Draggable Map Entity content.'

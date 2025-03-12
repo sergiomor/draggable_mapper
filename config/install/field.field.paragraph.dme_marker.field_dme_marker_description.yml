@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_dme_marker_description
+    - paragraphs.paragraphs_type.dme_marker
+  module:
+    - text
+id: paragraph.dme_marker.field_dme_marker_description
+field_name: field_dme_marker_description
+entity_type: paragraph
+bundle: dme_marker
+label: Description
+description: 'Description of the marker.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

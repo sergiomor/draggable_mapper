@@ -1,0 +1,51 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.draggable_map_entity.draggable_map_entity.field_dme_image
+    - field.field.draggable_map_entity.draggable_map_entity.field_dme_marker
+  module:
+    - draggable_map_entity
+    - image
+    - paragraphs
+id: draggable_map_entity.draggable_map_entity.default
+targetEntityType: draggable_map_entity
+bundle: draggable_map_entity
+mode: default
+content:
+  field_dme_image:
+    type: image_image
+    weight: 1
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {}
+  field_dme_marker:
+    type: paragraphs
+    weight: 2
+    region: content
+    settings:
+      title: Paragraph
+      title_plural: Paragraphs
+      edit_mode: open
+      closed_mode: summary
+      autocollapse: none
+      closed_mode_threshold: 0
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: ''
+      features:
+        duplicate: duplicate
+        collapse_edit_all: collapse_edit_all
+        add_above: '0'
+    third_party_settings: {}
+  name:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+hidden: {}

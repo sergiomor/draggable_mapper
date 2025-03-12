@@ -1,0 +1,37 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_dme_marker_icon
+    - paragraphs.paragraphs_type.dme_marker
+  module:
+    - image
+id: paragraph.dme_marker.field_dme_marker_icon
+field_name: field_dme_marker_icon
+entity_type: paragraph
+bundle: dme_marker
+label: Icon
+description: 'Custom icon for this marker (optional).'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'draggable_map/markers/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'png gif jpg jpeg'
+  max_filesize: ''
+  max_resolution: ''
+  min_resolution: ''
+  alt_field: true
+  alt_field_required: true
+  title_field: false
+  title_field_required: false
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+field_type: image

@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: dme_marker
+label: 'Map Marker'
+icon_uuid: null
+icon_default: null
+description: 'A marker for the draggable map entity.'
+behavior_plugins: {  }

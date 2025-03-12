@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Contains draggable_map_entity.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function draggable_map_entity_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.draggable_map_entity':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Draggable Map Entity module provides a customizable entity that displays an image with interactive markers.') . '</p>';
+      return $output;
+  }
+}

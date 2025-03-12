@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_dme_marker_x
+    - paragraphs.paragraphs_type.dme_marker
+id: paragraph.dme_marker.field_dme_marker_x
+field_name: field_dme_marker_x
+entity_type: paragraph
+bundle: dme_marker
+label: 'X Coordinate'
+description: 'X coordinate of the marker on the image (percentage from left).'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0
+  max: 1
+field_type: decimal
