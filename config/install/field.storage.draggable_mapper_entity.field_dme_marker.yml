@@ -2,12 +2,12 @@ langcode: en
 status: true
 dependencies:
   module:
-    - draggable_map_entity
+    - draggable_mapper_entity
     - entity_reference_revisions
     - paragraphs
-id: draggable_map_entity.field_dme_marker
+id: draggable_mapper_entity.field_dme_marker
 field_name: field_dme_marker
-entity_type: draggable_map_entity
+entity_type: draggable_mapper_entity
 type: entity_reference_revisions
 settings:
   target_type: paragraph

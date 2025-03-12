@@ -2,41 +2,41 @@
 
 /**
  * @file
- * Install, update and uninstall functions for the Draggable Map Entity module.
+ * Install, update and uninstall functions for the Draggable Mapper Entity module.
  */
 
 /**
  * Implements hook_install().
  */
-function draggable_map_entity_install() {
+function draggable_mapper_entity_install() {
   // Clear caches to ensure clean installation
   \Drupal::service('cache.discovery')->deleteAll();
   \Drupal::service('cache.config')->deleteAll();
   
   // Remove any conflicting configuration
-  _draggable_map_entity_remove_conflicting_configs();
+  _draggable_mapper_entity_remove_conflicting_configs();
 }
 
 /**
  * Implements hook_uninstall().
  */
-function draggable_map_entity_uninstall() {
+function draggable_mapper_entity_uninstall() {
   // Clean up database tables
-  _draggable_map_entity_remove_database_tables();
+  _draggable_mapper_entity_remove_database_tables();
   
   // Clean up configuration objects
-  _draggable_map_entity_remove_configs();
+  _draggable_mapper_entity_remove_configs();
   
   // Reset the uninstalling state
-  \Drupal::state()->delete('draggable_map_entity.uninstalling');
+  \Drupal::state()->delete('draggable_mapper_entity.uninstalling');
 }
 
 /**
  * Fix entity type definitions if tables don't exist.
  */
-function draggable_map_entity_update_8001() {
+function draggable_mapper_entity_update_8001() {
   $database = \Drupal::database();
-  $entity_type_id = 'draggable_map_entity';
+  $entity_type_id = 'draggable_mapper_entity';
   
   // Check if our tables exist
   if (!$database->schema()->tableExists($entity_type_id)) {
@@ -65,7 +65,7 @@ function draggable_map_entity_update_8001() {
 /**
  * Helper function to remove conflicting configuration.
  */
-function _draggable_map_entity_remove_conflicting_configs() {
+function _draggable_mapper_entity_remove_conflicting_configs() {
   $config_factory = \Drupal::configFactory();
   $conflict_configs = [
     'core.entity_form_display.node.reference_mapping.default',
@@ -82,7 +82,7 @@ function _draggable_map_entity_remove_conflicting_configs() {
 /**
  * Helper function to remove database tables.
  */
-function _draggable_map_entity_remove_database_tables() {
+function _draggable_mapper_entity_remove_database_tables() {
   $connection = \Drupal::database();
   $schema = $connection->schema();
   
@@ -120,10 +120,10 @@ function _draggable_map_entity_remove_database_tables() {
   
   // Entity tables
   $entity_tables = [
-    'draggable_map_entity',
-    'draggable_map_entity_field_data',
-    'draggable_map_entity_field_revision',
-    'draggable_map_entity_revision',
+    'draggable_mapper_entity',
+    'draggable_mapper_entity_field_data',
+    'draggable_mapper_entity_field_revision',
+    'draggable_mapper_entity_revision',
   ];
   
   foreach ($entity_tables as $table) {
@@ -136,23 +136,23 @@ function _draggable_map_entity_remove_database_tables() {
 /**
  * Helper function to remove module configuration.
  */
-function _draggable_map_entity_remove_configs() {
+function _draggable_mapper_entity_remove_configs() {
   $config_factory = \Drupal::configFactory();
   
   // Delete field configurations
-  $config_names = $config_factory->listAll('field.field.draggable_map_entity.');
+  $config_names = $config_factory->listAll('field.field.draggable_mapper_entity.');
   foreach ($config_names as $config_name) {
     $config_factory->getEditable($config_name)->delete();
   }
   
   // Delete field storage configurations
-  $config_names = $config_factory->listAll('field.storage.draggable_map_entity.');
+  $config_names = $config_factory->listAll('field.storage.draggable_mapper_entity.');
   foreach ($config_names as $config_name) {
     $config_factory->getEditable($config_name)->delete();
   }
   
   // Clean up view and form displays
-  $display_types = ['core.entity_view_display.draggable_map_entity.', 'core.entity_form_display.draggable_map_entity.'];
+  $display_types = ['core.entity_view_display.draggable_mapper_entity.', 'core.entity_form_display.draggable_mapper_entity.'];
   foreach ($display_types as $display_type) {
     $config_names = $config_factory->listAll($display_type);
     foreach ($config_names as $config_name) {
@@ -162,19 +162,19 @@ function _draggable_map_entity_remove_configs() {
   
   // Also clean up any paragraph, field widget, or node configurations this module created
   $additional_configs = [
-    'core.entity_form_display.draggable_map_entity.draggable_map_entity.default',
+    'core.entity_form_display.draggable_mapper_entity.draggable_mapper_entity.default',
     'core.entity_form_display.paragraph.dme_marker.default',
-    'core.entity_view_display.draggable_map_entity.draggable_map_entity.default',
+    'core.entity_view_display.draggable_mapper_entity.draggable_mapper_entity.default',
     'core.entity_view_display.paragraph.dme_marker.default',
-    'field.field.draggable_map_entity.draggable_map_entity.field_dme_image',
-    'field.field.draggable_map_entity.draggable_map_entity.field_dme_marker',
+    'field.field.draggable_mapper_entity.draggable_mapper_entity.field_dme_image',
+    'field.field.draggable_mapper_entity.draggable_mapper_entity.field_dme_marker',
     'field.field.paragraph.dme_marker.field_dme_marker_description',
     'field.field.paragraph.dme_marker.field_dme_marker_icon',
     'field.field.paragraph.dme_marker.field_dme_marker_title',
     'field.field.paragraph.dme_marker.field_dme_marker_x',
     'field.field.paragraph.dme_marker.field_dme_marker_y',
-    'field.storage.draggable_map_entity.field_dme_image',
-    'field.storage.draggable_map_entity.field_dme_marker',
+    'field.storage.draggable_mapper_entity.field_dme_image',
+    'field.storage.draggable_mapper_entity.field_dme_marker',
     'field.storage.paragraph.field_dme_marker_description',
     'field.storage.paragraph.field_dme_marker_icon',
     'field.storage.paragraph.field_dme_marker_title',

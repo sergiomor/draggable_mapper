@@ -1,0 +1,20 @@
+administer draggable mapper entity:
+  title: 'Administer Draggable Mapper Entity settings'
+  description: 'Allow to access the administration form to configure Draggable Mapper Entity.'
+  restrict access: true
+
+add draggable mapper entity:
+  title: 'Create new Draggable Mapper Entity'
+  description: 'Allow users to create new Draggable Mapper Entity content.'
+
+view draggable mapper entity:
+  title: 'View Draggable Mapper Entity'
+  description: 'Allow users to view Draggable Mapper Entity content.'
+
+edit draggable mapper entity:
+  title: 'Edit Draggable Mapper Entity'
+  description: 'Allow users to edit Draggable Mapper Entity content.'
+
+delete draggable mapper entity:
+  title: 'Delete Draggable Mapper Entity'
+  description: 'Allow users to delete Draggable Mapper Entity content.'

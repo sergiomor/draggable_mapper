@@ -1,4 +1,4 @@
-name: Draggable Map Entity
+name: Draggable Mapper Entity
 type: module
 description: 'Provides a draggable map entity with interactive markers.'
 package: Custom

@@ -1,15 +1,14 @@
 <?php
 
-namespace Drupal\draggable_map_entity\Form;
+namespace Drupal\draggable_mapper_entity\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Messenger\MessengerInterface;
 
 /**
  * Form controller for Draggable Map Entity forms.
  */
-class DraggableMapEntityForm extends ContentEntityForm {
+class DraggableMapperEntityForm extends ContentEntityForm {
 
   /**
    * {@inheritdoc}
@@ -24,14 +23,14 @@ class DraggableMapEntityForm extends ContentEntityForm {
 
     if ($result == SAVED_NEW) {
       $this->messenger()->addStatus($this->t('New draggable map entity %label has been created.', $message_arguments));
-      $this->logger('draggable_map_entity')->notice('Created new draggable map entity %label', $logger_arguments);
+      $this->logger('draggable_mapper_entity')->notice('Created new draggable map entity %label', $logger_arguments);
     }
     else {
       $this->messenger()->addStatus($this->t('The draggable map entity %label has been updated.', $message_arguments));
-      $this->logger('draggable_map_entity')->notice('Updated draggable map entity %label.', $logger_arguments);
+      $this->logger('draggable_mapper_entity')->notice('Updated draggable map entity %label.', $logger_arguments);
     }
 
-    $form_state->setRedirect('entity.draggable_map_entity.canonical', ['draggable_map_entity' => $entity->id()]);
+    $form_state->setRedirect('entity.draggable_mapper_entity.canonical', ['draggable_mapper_entity' => $entity->id()]);
   }
 
 }

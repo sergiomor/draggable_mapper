@@ -2,15 +2,15 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.draggable_map_entity.field_dme_marker
+    - field.storage.draggable_mapper_entity.field_dme_marker
     - paragraphs.paragraphs_type.dme_marker
   module:
-    - draggable_map_entity
+    - draggable_mapper_entity
     - entity_reference_revisions
-id: draggable_map_entity.draggable_map_entity.field_dme_marker
+id: draggable_mapper_entity.draggable_mapper_entity.field_dme_marker
 field_name: field_dme_marker
-entity_type: draggable_map_entity
-bundle: draggable_map_entity
+entity_type: draggable_mapper_entity
+bundle: draggable_mapper_entity
 label: Markers
 description: 'Add markers to the image.'
 required: false

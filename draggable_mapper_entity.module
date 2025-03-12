@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Contains draggable_mapper_entity.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
+/**
+ * Implements hook_help().
+ */
+function draggable_mapper_entity_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.draggable_mapper_entity':
+      $output = '';
+      $output .= '<h3>' . \Drupal::translation()->translate('About') . '</h3>';
+      $output .= '<p>' . \Drupal::translation()->translate('The Draggable Mapper Entity module provides a customizable entity that displays an image with interactive markers.') . '</p>';
+      return $output;
+  }
+}

@@ -2,16 +2,16 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.draggable_map_entity.field_dme_image
+    - field.storage.draggable_mapper_entity.field_dme_image
   module:
-    - draggable_map_entity
+    - draggable_mapper_entity
     - image
-id: draggable_map_entity.draggable_map_entity.field_dme_image
+id: draggable_mapper_entity.draggable_mapper_entity.field_dme_image
 field_name: field_dme_image
-entity_type: draggable_map_entity
-bundle: draggable_map_entity
-label: Image
-description: 'The map image that will be displayed with markers.'
+entity_type: draggable_mapper_entity
+bundle: draggable_mapper_entity
+label: 'Map Image'
+description: 'Upload an image to use as the map background.'
 required: true
 translatable: false
 default_value: {  }
@@ -19,8 +19,8 @@ default_value_callback: ''
 settings:
   handler: 'default:file'
   handler_settings: {  }
-  file_directory: 'draggable_map/[date:custom:Y]-[date:custom:m]'
-  file_extensions: 'png gif jpg jpeg'
+  file_directory: 'draggable_mapper_entity/maps'
+  file_extensions: 'png jpg jpeg gif svg'
   max_filesize: ''
   max_resolution: ''
   min_resolution: ''

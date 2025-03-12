@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\draggable_map_entity\Entity;
+namespace Drupal\draggable_mapper_entity\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -11,28 +11,28 @@ use Drupal\user\EntityOwnerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
- * Defines the Draggable Map Entity entity class.
+ * Defines the Draggable Mapper Entity entity class.
  *
  * @ContentEntityType(
- *   id = "draggable_map_entity",
- *   label = @Translation("Draggable Map Entity"),
- *   label_collection = @Translation("Draggable Map Entities"),
+ *   id = "draggable_mapper_entity",
+ *   label = @Translation("Draggable Mapper Entity"),
+ *   label_collection = @Translation("Draggable Mapper Entities"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\draggable_map_entity\DraggableMapEntityListBuilder",
+ *     "list_builder" = "Drupal\draggable_mapper_entity\DraggableMapperEntityListBuilder",
  *     "views_data" = "Drupal\views\EntityViewsData",
  *     "form" = {
- *       "default" = "Drupal\draggable_map_entity\Form\DraggableMapEntityForm",
- *       "add" = "Drupal\draggable_map_entity\Form\DraggableMapEntityForm",
- *       "edit" = "Drupal\draggable_map_entity\Form\DraggableMapEntityForm",
+ *       "default" = "Drupal\draggable_mapper_entity\Form\DraggableMapperEntityForm",
+ *       "add" = "Drupal\draggable_mapper_entity\Form\DraggableMapperEntityForm",
+ *       "edit" = "Drupal\draggable_mapper_entity\Form\DraggableMapperEntityForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *     },
- *     "access" = "Drupal\draggable_map_entity\DraggableMapEntityAccessControlHandler",
+ *     "access" = "Drupal\draggable_mapper_entity\DraggableMapperEntityAccessControlHandler",
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
  *   },
- *   base_table = "draggable_map_entity",
+ *   base_table = "draggable_mapper_entity",
  *   admin_permission = "administer draggable map entity",
  *   entity_keys = {
  *     "id" = "id",
@@ -41,16 +41,16 @@ use Drupal\Core\Entity\ContentEntityInterface;
  *     "owner" = "uid",
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/draggable_map_entity/{draggable_map_entity}",
- *     "add-form" = "/admin/structure/draggable_map_entity/add",
- *     "edit-form" = "/admin/structure/draggable_map_entity/{draggable_map_entity}/edit",
- *     "delete-form" = "/admin/structure/draggable_map_entity/{draggable_map_entity}/delete",
- *     "collection" = "/admin/structure/draggable_map_entity",
+ *     "canonical" = "/admin/structure/draggable_mapper_entity/{draggable_mapper_entity}",
+ *     "add-form" = "/admin/structure/draggable_mapper_entity/add",
+*     "edit-form" = "/admin/structure/draggable_mapper_entity/{draggable_mapper_entity}/edit",
+ *     "delete-form" = "/admin/structure/draggable_mapper_entity/{draggable_mapper_entity}/delete",
+ *     "collection" = "/admin/structure/draggable_mapper_entity",
  *   },
- *   field_ui_base_route = "entity.draggable_map_entity.collection",
+ *   field_ui_base_route = "entity.draggable_mapper_entity.collection",
  * )
  */
-class DraggableMapEntity extends ContentEntityBase implements ContentEntityInterface, EntityOwnerInterface {
+class DraggableMapperEntity extends ContentEntityBase implements ContentEntityInterface, EntityOwnerInterface {
 
   use EntityChangedTrait;
   use EntityOwnerTrait;
@@ -64,7 +64,7 @@ class DraggableMapEntity extends ContentEntityBase implements ContentEntityInter
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
-      ->setDescription(t('The name of the Draggable Map Entity.'))
+      ->setDescription(t('The name of the Draggable Mapper Entity.'))
       ->setSettings([
         'max_length' => 255,
         'text_processing' => 0,

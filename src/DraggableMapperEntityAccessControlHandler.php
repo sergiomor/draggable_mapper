@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\draggable_map_entity;
+namespace Drupal\draggable_mapper_entity;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
@@ -10,13 +10,13 @@ use Drupal\Core\Access\AccessResult;
 /**
  * Access controller for the Draggable Map Entity entity.
  */
-class DraggableMapEntityAccessControlHandler extends EntityAccessControlHandler {
+class DraggableMapperEntityAccessControlHandler extends EntityAccessControlHandler {
 
   /**
    * {@inheritdoc}
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
-    /** @var \Drupal\draggable_map_entity\Entity\DraggableMapEntityInterface $entity */
+    /** @var \Drupal\draggable_mapper_entity\Entity\DraggableMapperEntityInterface $entity */
 
     switch ($operation) {
       case 'view':
