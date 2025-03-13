@@ -12,7 +12,9 @@ label: 'X Coordinate'
 description: 'X coordinate of the marker on the image (percentage from left).'
 required: true
 translatable: false
-default_value: {  }
+default_value:
+  -
+    value: 0
 default_value_callback: ''
 settings:
   min: 0

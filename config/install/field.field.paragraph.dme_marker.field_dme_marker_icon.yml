@@ -11,7 +11,7 @@ field_name: field_dme_marker_icon
 entity_type: paragraph
 bundle: dme_marker
 label: Icon
-description: 'Custom icon for this marker (optional).'
+description: 'Custom icon for this marker (optional). If empty, the title will be used as the marker icon.'
 required: false
 translatable: false
 default_value: {  }
