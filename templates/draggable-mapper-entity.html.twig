@@ -1,0 +1,49 @@
+{#
+/**
+ * @file
+ * Theme implementation to display a Draggable Mapper Entity.
+ *
+ * Available variables:
+ * - draggable_mapper_entity: The Draggable Mapper Entity entity.
+ * - map_image_url: URL to the map image.
+ * - markers: Array of marker data with coordinates and optional titles/descriptions.
+ * - content: All items for this entity.
+ *
+ * @see template_preprocess_draggable_mapper_entity()
+ *
+ * @ingroup themeable
+ */
+#}
+<div{{ attributes.addClass('draggable-mapper-entity') }}>
+  {% if content %}
+    {% if map_image_url %}
+      <div class="dme-container">
+        <div class="dme-image-wrapper">
+          <img src="{{ map_image_url }}" alt="{{ draggable_mapper_entity.label }}" class="dme-map-image" />
+          
+          {% if markers %}
+            {% for marker in markers %}
+              <div class="dme-marker" style="left: {{ marker.x }}%; top: {{ marker.y }}%;" 
+                   {% if marker.title %}title="{{ marker.title }}"{% endif %}>
+                {% if marker.icon_url %}
+                  <img src="{{ marker.icon_url }}" alt="{{ marker.title|default('Marker') }}" />
+                {% else %}
+                  <div class="dme-marker-default"></div>
+                {% endif %}
+                
+                {% if marker.description %}
+                  <div class="dme-marker-tooltip">{{ marker.description }}</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+    
+    {# Content without the rendered fields #}
+    <div class="dme-content">
+      {{ content|without('field_dme_image', 'field_dme_marker') }}
+    </div>
+  {% endif %}
+</div>

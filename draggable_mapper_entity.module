@@ -7,6 +7,8 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\file\Entity\File;
+use Drupal\Component\Utility\NestedArray;
 
 /**
  * Implements hook_help().
@@ -16,7 +18,190 @@ function draggable_mapper_entity_help($route_name, RouteMatchInterface $route_ma
     case 'help.page.draggable_mapper_entity':
       $output = '';
       $output .= '<h3>' . \Drupal::translation()->translate('About') . '</h3>';
-      $output .= '<p>' . \Drupal::translation()->translate('The Draggable Mapper Entity module provides a customizable entity that displays an image with interactive markers.') . '</p>';
+      $output .= '<p>' . \Drupal::translation()->translate('The Draggable Mapper Entity module provides a custom entity type for creating maps with draggable markers.') . '</p>';
       return $output;
   }
 }
+
+/**
+ * Implements hook_theme().
+ */
+function draggable_mapper_entity_theme($existing, $type, $theme, $path) {
+  return [
+    'draggable_mapper_entity' => [
+      'render element' => 'elements',
+      'template' => 'draggable-mapper-entity',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_inline_entity_form_entity_form_alter().
+ */
+function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+  // Only act on draggable_mapper_entity
+  if ($entity_form['#entity_type'] != 'draggable_mapper_entity') {
+    return;
+  }
+
+  // Add the library
+  $entity_form['#attached']['library'][] = 'draggable_mapper_entity/mapper';
+  
+  // Add the preview container
+  _draggable_mapper_entity_add_preview_container($entity_form, $form_state);
+}
+
+/**
+ * Helper function to add the preview container to a form.
+ */
+function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NULL) {
+  // Don't add the container for delete forms or other special forms
+  if (isset($form['#theme']) && in_array($form['#theme'], ['confirm_form'])) {
+    return;
+  }
+
+  // Check if we have the necessary fields
+  if (!isset($form['field_dme_image'])) {
+    return;
+  }
+
+  // Get image file URL if available
+  $image_url = '';
+  $image_fid = _draggable_mapper_entity_get_image_fid($form, $form_state, 'field_dme_image');
+  
+  // If we have a file ID, load the file and get URL
+  if ($image_fid) {
+    $file = File::load($image_fid);
+    if ($file) {
+      $file_url_generator = \Drupal::service('file_url_generator');
+      $image_url = $file_url_generator->generateString($file->getFileUri());
+    }
+  }
+
+  // Add the container after the markers fieldset
+  $weight = isset($form['field_dme_image']['#weight']) ? $form['field_dme_marker']['#weight'] + 0.5 : 50;
+  
+  $preview_markup = '<div class="dme-loading">' . new TranslatableMarkup('The map preview will appear here when a map image is added.') . '</div>';
+  
+  // If we have an image, create the map preview
+  if ($image_url) {
+    $preview_markup = '<div class="dme-image-wrapper">';
+    $preview_markup .= '<img src="' . $image_url . '" alt="Map Image" />';
+    $preview_markup .= '</div>';
+  }
+   
+  $form['dme_preview_container'] = [
+    '#type' => 'container',
+    '#weight' => $weight,
+    '#attributes' => [
+      'class' => ['dme-container'],
+      'id' => 'dme-preview-container',
+    ],
+    '#tree' => FALSE,
+    'title' => [
+      '#type' => 'html_tag',
+      '#tag' => 'h4',
+      '#value' => new TranslatableMarkup('Map Preview'),
+    ],
+    'preview' => [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['dme-image-preview'],
+      ],
+      '#markup' => $preview_markup,
+    ],
+  ];
+  
+}
+
+/**
+ * Implements hook_library_info_build().
+ */
+function draggable_mapper_entity_library_info_build() {
+  $libraries = [];
+  
+  $libraries['mapper'] = [
+    'version' => '1.x',
+    'css' => [
+      'theme' => [
+        'css/mapper.css' => [],
+      ],
+    ],
+    'js' => [
+      'js/mapper.js' => [],
+    ],
+    'dependencies' => [
+      'core/jquery',
+      'core/drupal',
+      'core/once',
+      'core/drupalSettings',
+    ],
+  ];
+  
+  return $libraries;
+}
+
+
+/**
+ * Helper function to extract image FID from various form sources.
+ *
+ * @param array $form
+ *   The form array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ * @param string $field_name
+ *   The field name to extract the FID from. Defaults to 'field_dme_image'.
+ *
+ * @return int|null
+ *   The file ID if found, NULL otherwise.
+ */
+function _draggable_mapper_entity_get_image_fid($form, $form_state, $field_name = 'field_dme_image') {
+  $image_fid = NULL;
+
+  // If the triggering element is from AJAX upload, get directly from it
+  if ($form_state && ($triggering_element = $form_state->getTriggeringElement())) {
+    // Check if it's a file upload
+    $is_upload_button = FALSE;
+    if (isset($triggering_element['#submit']) && in_array('file_managed_file_submit', $triggering_element['#submit'])) {
+      $is_upload_button = TRUE;
+    }
+    
+    // Get the parents of the upload button to find the file element
+    if ($is_upload_button) {
+      $parents = $triggering_element['#array_parents'];
+      array_pop($parents); // Remove the button itself
+      $element = NestedArray::getValue($form, $parents);
+      
+      if (isset($element['fids']['#value'][0])) {
+        $image_fid = $element['fids']['#value'][0];
+      }
+      elseif (isset($element['#file'])) {
+        $image_fid = $element['#file']->id();
+      }
+    }
+  }
+  
+  // If we didn't get a file ID from the AJAX element, try other methods
+  if (!$image_fid) {
+    // Try to get from form state values
+    if ($form_state && $form_state->getValue($field_name)) {
+      $values = $form_state->getValue($field_name);
+      if (!empty($values[0]['fids'][0])) {
+        $image_fid = $values[0]['fids'][0];
+      }
+    }
+    
+    // If still no value, try from default value
+    if (!$image_fid && isset($form[$field_name]['widget'][0]['#default_value']['fids'][0])) {
+      $image_fid = $form[$field_name]['widget'][0]['#default_value']['fids'][0];
+    }
+    
+    // Last resort, check if file is stored in the widget
+    if (!$image_fid && isset($form[$field_name]['widget'][0]['#file'])) {
+      $image_fid = $form[$field_name]['widget'][0]['#file']->id();
+    }
+  }
+  
+  return $image_fid;
+}
+

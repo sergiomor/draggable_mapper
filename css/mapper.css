@@ -1,0 +1,91 @@
+/**
+ * Styles for the Draggable Mapper Entity.
+ */
+
+.dme-container {
+  position: relative;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  padding: 15px;
+  background-color: #f8f8f8;
+  clear: both;
+}
+
+.dme-image-preview {
+  position: relative;
+  margin-top: 15px;
+  min-height: 50px;
+}
+
+.dme-image-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.dme-image-wrapper img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.dme-marker {
+  position: absolute;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.dme-marker-default {
+  width: 20px;
+  height: 20px;
+  background-color: #ff6b6b;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dme-marker img {
+  max-width: 30px;
+  max-height: 30px;
+}
+
+/* Inline Entity Form integration */
+.ief-entity-form .dme-container {
+  margin-top: 30px;
+}
+
+.ief-entity-table .dme-container {
+  margin-top: 15px;
+}
+
+/* Specifically style the container within IEF Complex form */
+.ief-form .dme-container {
+  margin: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Make sure the preview works well in table contexts */
+.ief-row-entity .dme-container {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+/* Animation for marker updates */
+@keyframes marker-update {
+  0% { transform: scale(1) translate(-50%, -50%); }
+  50% { transform: scale(1.5) translate(-50%, -50%); }
+  100% { transform: scale(1) translate(-50%, -50%); }
+}
+
+.dme-marker-updated {
+  animation: marker-update 0.5s ease-in-out;
+}
+
+/* Loading indicator */
+.dme-loading {
+  padding: 10px;
+  font-style: italic;
+  color: #666;
+}
