@@ -56,9 +56,9 @@ function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_f
  */
 function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NULL) {
   // Don't add the container for delete forms or other special forms
-  if (isset($form['#theme']) && in_array($form['#theme'], ['confirm_form'])) {
-    return;
-  }
+  // if (isset($form['#theme']) && in_array($form['#theme'], ['confirm_form'])) {
+  //   return;
+  // }
 
   // Check if we have the necessary fields
   if (!isset($form['field_dme_image'])) {
@@ -81,36 +81,115 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
   // Add the container after the markers fieldset
   $weight = isset($form['field_dme_image']['#weight']) ? $form['field_dme_marker']['#weight'] + 0.5 : 50;
   
-  $preview_markup = '<div class="dme-loading">' . new TranslatableMarkup('The map preview will appear here when a map image is added.') . '</div>';
+  $image_container = '<div class="dme-loading">' . new TranslatableMarkup('The map preview will appear here when a map image is added.') . '</div>';
   
   // If we have an image, create the map preview
   if ($image_url) {
-    $preview_markup = '<div class="dme-image-wrapper">';
-    $preview_markup .= '<img src="' . $image_url . '" alt="Map Image" />';
-    $preview_markup .= '</div>';
+    $image_container = '<div class="dme-image-wrapper">';
+    $image_container.= '<img src="' . $image_url . '" alt="Map Image" />';
+    $image_container .= '</div>';
   }
    
   $form['dme_preview_container'] = [
     '#type' => 'container',
-    '#weight' => $weight,
     '#attributes' => [
       'class' => ['dme-container'],
-      'id' => 'dme-preview-container',
-    ],
-    '#tree' => FALSE,
-    'title' => [
-      '#type' => 'html_tag',
-      '#tag' => 'h4',
-      '#value' => new TranslatableMarkup('Map Preview'),
-    ],
+      'id' => 'dme-container'],
+    '#weight' => $weight,
     'preview' => [
       '#type' => 'container',
-      '#attributes' => [
-        'class' => ['dme-image-preview'],
+      'header' => [
+        '#type' => 'container',
+        'title' => [
+          '#type' => 'html_tag',
+          '#tag' => 'h4',
+          '#value' => new TranslatableMarkup('Map Preview'),
+          '#attributes' => ['class' => ['form-item__label']],
+        ],
+        'instructions' => [
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#value' => new TranslatableMarkup('Drag markers to position map elements.'),
+          '#attributes' => ['class' => ['form-item__description']],
+        ],
       ],
-      '#markup' => $preview_markup,
+    ]
+  ];
+
+  $form['dme_preview_container']['dme_container_wrapper'] = [
+    '#type' => 'container',
+    '#attributes' => [
+      'id' => 'dme-container-wrapper',
+      'class' => ['dme-container-wrapper'],
     ],
   ];
+
+  $form['dme_preview_container']['dme_container_wrapper']['dme_image'] = [
+    '#type' => 'container',
+    '#attributes' => [
+      'class' => ['dme-image'],
+      'id' => 'dme-image',
+      'role' => 'region',
+      'aria-label' => new TranslatableMarkup('Map preview surface')
+    ],
+    '#markup' => $image_container,
+  ];
+
+
+  $markers = _draggable_mapper_entity_get_marker_data($form, $form_state, 'field_dme_marker');
+
+  if (!empty($markers)) {
+    foreach ($markers as $marker) {
+      // Initialize marker element variable
+      $marker_element = '';
+      
+      // If the marker has an icon file, display the icon image
+      if ($marker['icon_fid']) {
+        $icon_url = '';
+        // Load the file entity using the file ID
+        $file = File::load($marker['icon_fid']);
+        if ($file) {
+          // Get the file URL generator service
+          $file_url_generator = \Drupal::service('file_url_generator');
+          // Generate a URL for the file that can be used in the browser
+          $icon_url = $file_url_generator->generateString($file->getFileUri());
+        }
+        // Create an image tag with the icon URL
+        $marker_element = '<img src="' . $icon_url . '" alt="Marker Icon" />';
+      } else {
+        // If no icon is available, use the marker title as fallback
+        $marker_element = $marker['title'];
+      }
+
+      $marker_html = '<div class="dme-marker-wrapper">';
+      $marker_html .= $marker_element;
+      $marker_html .= '</div>';
+  
+      $form['dme_preview_container']['dme_container_wrapper']['dme_marker-' . $marker['index']] = [
+        '#type' => 'container',
+        '#attributes' => [
+          'class' => ['dme-marker'],
+          'id' => 'dme-marker-' . $marker['index'],
+          'role' => 'application',
+          'aria-label' => new TranslatableMarkup('Interactive component positioning interface'),
+          'aria-describedby' => 'dme-instructions',
+          'aria-live' => 'polite' // Announces changes to screen readers
+        ], 
+        '#markup' => $marker_html
+      ];  
+    }
+  }
+
+// Accessible instructions
+$form['dme_preview_container']['instructions'] = [
+  '#type' => 'html_tag',
+  '#tag' => 'div',
+  '#attributes' => [
+    'id' => 'dme-instructions',
+    'class' => ['visually-hidden'], // Hidden visually but available to screen readers
+  ],
+  '#value' => new TranslatableMarkup('Use arrow keys or drag to position elements on the map surface.')
+];
   
 }
 
@@ -133,7 +212,7 @@ function draggable_mapper_entity_library_info_build() {
     'dependencies' => [
       'core/jquery',
       'core/drupal',
-      'core/once',
+      'core/drupal.once',
       'core/drupalSettings',
     ],
   ];
@@ -205,3 +284,77 @@ function _draggable_mapper_entity_get_image_fid($form, $form_state, $field_name 
   return $image_fid;
 }
 
+
+/**
+ * Helper function to extract marker data from field_dme_marker paragraphs.
+ *
+ * @param array $form
+ *   The form array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ * @param string $field_name
+ *   The field name to extract the marker data from. Defaults to 'field_dme_marker'.
+ *
+ * @return array
+ *   An array of marker data with each item containing:
+ *   - index: The index of the marker item
+ *   - title: The marker title
+ *   - icon_fid: The file ID of the marker icon (if it exists), NULL otherwise
+ */
+function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_name = 'field_dme_marker') {
+  $markers = [];
+  
+  // Try to get marker data from form state values
+  if ($form_state && $form_state->getValue($field_name)) {
+    $values = $form_state->getValue($field_name);
+    
+    if (!empty($values) && is_array($values)) {
+      foreach ($values as $index => $item) {
+        $marker_data = [
+          'index' => $index,
+          'title' => isset($item['subform']['field_dme_marker_title'][0]['value']) 
+            ? $item['subform']['field_dme_marker_title'][0]['value'] 
+            : '',
+          'icon_fid' => NULL,
+        ];
+        
+        // Get icon fid if it exists
+        if (isset($item['subform']['field_dme_marker_icon'][0]['fids'][0])) {
+          $marker_data['icon_fid'] = $item['subform']['field_dme_marker_icon'][0]['fids'][0];
+        }
+        
+        $markers[] = $marker_data;
+      }
+    }
+  }
+  
+  // If no values in form state, try from default values
+  if (empty($markers) && isset($form[$field_name]['widget'])) {
+    foreach ($form[$field_name]['widget'] as $index => $item) {
+      // Skip non-numeric indexes
+      if (!is_numeric($index)) {
+        continue;
+      }
+      
+      $marker_data = [
+        'index' => $index,
+        'title' => '',
+        'icon_fid' => NULL,
+      ];
+      
+      // Get title from default value
+      if (isset($item['subform']['field_dme_marker_title']['widget'][0]['value']['#default_value'])) {
+        $marker_data['title'] = $item['subform']['field_dme_marker_title']['widget'][0]['value']['#default_value'];
+      }
+      
+      // Get icon from default value
+      if (isset($item['subform']['field_dme_marker_icon']['widget'][0]['#default_value']['fids'][0])) {
+        $marker_data['icon_fid'] = $item['subform']['field_dme_marker_icon']['widget'][0]['#default_value']['fids'][0];
+      }
+      
+      $markers[] = $marker_data;
+    }
+  }
+  
+  return $markers;
+}

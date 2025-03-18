@@ -7,23 +7,23 @@
   margin: 20px 0;
   border: 1px solid #ccc;
   padding: 15px;
-  background-color: #f8f8f8;
   clear: both;
 }
 
-.dme-image-preview {
-  position: relative;
-  margin-top: 15px;
-  min-height: 50px;
-}
-
-.dme-image-wrapper {
+.dme-container-wrapper {
   position: relative;
   display: inline-block;
+  border: 1px solid #ccc; 
   max-width: 100%;
 }
 
-.dme-image-wrapper img {
+.dme-image {
+  position: relative;
+  max-width: 100%;
+  min-height: 100px; 
+}
+
+.dme-image img {
   max-width: 100%;
   height: auto;
   display: block;
@@ -32,22 +32,44 @@
 .dme-marker {
   position: absolute;
   z-index: 10;
-  transform: translate(-50%, -50%);
-  cursor: pointer;
+  top: 0;
+  padding: 5px;
+  cursor: move; /* Changed from pointer to move to indicate draggable */
+  border: 1px solid #ccc; 
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  user-select: none; /* Prevent text selection while dragging */
 }
 
-.dme-marker-default {
-  width: 20px;
-  height: 20px;
-  background-color: #ff6b6b;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+.dme-marker:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.dme-marker.dragging {
+  opacity: 0.8;
+  z-index: 20; /* Ensure dragged item is on top */
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.dme-marker-wrapper {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px;
 }
 
 .dme-marker img {
   max-width: 30px;
   max-height: 30px;
+  display: block;
+  margin: 0 auto;
 }
 
 /* Inline Entity Form integration */
@@ -88,4 +110,23 @@
   padding: 10px;
   font-style: italic;
   color: #666;
+}
+
+/* Accessibility enhancements */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Feedback when marker is actively being positioned */
+.dme-marker:focus,
+.dme-marker:focus-within {
+  outline: 2px solid #36c;
+  outline-offset: 2px;
 }
