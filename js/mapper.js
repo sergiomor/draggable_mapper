@@ -352,7 +352,7 @@
             $(this).css('opacity', '0.3');
           },
           
-          // During drag
+         // During drag
           drag: function(event, ui) {
             // Check if we're over the target container
             var isOverContainer = false;
@@ -402,6 +402,29 @@
                 left: relativeX + 'px',
                 top: relativeY + 'px'
               });
+              
+
+              // condider the center of element to determine the position
+              
+/*               // Calculate position as percentage of container size for responsive behavior
+              var containerWidth = $container.width();
+              var containerHeight = $container.height();
+              
+              var posX = (relativeX / containerWidth).toFixed(4);
+              var posY = (relativeY / containerHeight).toFixed(4);
+              
+              // Find the corresponding form element and update the x/y values
+              var $paragraphItem = findParagraphByDelta(delta);
+              if ($paragraphItem.length) {
+                // Update the hidden input fields for x and y coordinates
+                var $xInput = $paragraphItem.find('input[name*="[field_dme_marker_x][0][value]"]');
+                var $yInput = $paragraphItem.find('input[name*="[field_dme_marker_y][0][value]"]');
+                
+                if ($xInput.length && $yInput.length) {
+                  $xInput.val(posX).trigger('change');
+                  $yInput.val(posY).trigger('change');
+                }
+              } */
               
               // Mark as mapped
               $marker.removeClass('dme-unmapped-marker').addClass('dme-mapped-marker');
@@ -485,7 +508,22 @@
       // Check and hide the no markers message if needed
       checkAndHideNoMarkersMessage();
     }
-
-
+  
+    /**
+     * Find paragraph item by delta
+     */
+    function findParagraphByDelta(delta) {
+      var $paragraphItem = null;
+      
+      $('.paragraph-type--dme-marker, .paragraphs-subform').each(function() {
+        var paragraphDelta = getDeltaFromParagraph($(this));
+        if (paragraphDelta == delta) {
+          $paragraphItem = $(this);
+          return false; // Break the loop
+        }
+      });
+      
+      return $paragraphItem || $();
+    }
   
   })(jQuery, Drupal, drupalSettings, once);

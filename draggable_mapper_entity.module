@@ -154,8 +154,7 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
       '#markup' => '<div class="dme-no-markers-message">' . new TranslatableMarkup('Add new markers to be mapped') . '</div>',
     ];
   }
-  dpm($markers);
-
+  
   if (!empty($markers)) {
     // Separate markers into mapped and unmapped
     $markers_mapped = [];
@@ -385,30 +384,24 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
   elseif ($form_state->has('entity')) {
     $entity = $form_state->get('entity');
   }
-  
-  // Try to get saved X/Y coordinates from the database
+
+  // Try to get saved X/Y coordinates
   if ($entity && !$entity->isNew()) {
-    // Get entity ID
-    $entity_id = $entity->id();
-    $entity_type = $entity->getEntityTypeId();
-    
-    // Query for paragraphs related to this entity
-    $connection = \Drupal::database();
-    $query = $connection->select('paragraphs_item_field_data', 'p');
-    $query->fields('p', ['id', 'parent_id', 'parent_field_name', 'parent_type']);
-    $query->condition('p.parent_id', $entity_id);
-    $query->condition('p.parent_type', $entity_type);
-    $query->condition('p.parent_field_name', $field_name);
-    $paragraphs = $query->execute()->fetchAll();
-    
-    // Create a map of paragraphs by their IDs
-    $paragraph_map = [];
-    foreach ($paragraphs as $paragraph) {
-      $paragraph_map[$paragraph->id] = $paragraph;
+    // Use field_dme_marker target_ids directly from the entity
+    if ($entity->hasField($field_name) && !$entity->get($field_name)->isEmpty()) {
+      $paragraph_refs = $entity->get($field_name)->getValue();
+      
+      // Create a map of index to paragraph ID
+      $entity_ids = [];
+      foreach ($paragraph_refs as $index => $ref) {
+        if (isset($ref['target_id'])) {
+          $entity_ids[$index] = $ref['target_id'];
+        }
+      }
     }
     
     // Store the paragraph IDs
-    $entity_ids = array_keys($paragraph_map);
+    //$entity_ids = array_keys($paragraph_map);
   }
   
   // Process form widget data
@@ -441,25 +434,19 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
       if (!empty($entity_ids) && isset($entity_ids[$index])) {
         $paragraph_id = $entity_ids[$index];
         
-        // Get X and Y coordinates from the database
-        $x_value = \Drupal::database()->select('paragraph__field_dme_marker_x', 'x')
-          ->fields('x', ['field_dme_marker_x_value'])
-          ->condition('x.entity_id', $paragraph_id)
-          ->execute()
-          ->fetchField();
-          
-        $y_value = \Drupal::database()->select('paragraph__field_dme_marker_y', 'y')
-          ->fields('y', ['field_dme_marker_y_value'])
-          ->condition('y.entity_id', $paragraph_id)
-          ->execute()
-          ->fetchField();
-          
-        if ($x_value !== FALSE) {
-          $marker_data['x'] = $x_value;
-        }
+        // Load the paragraph entity instead of querying the database directly
+        $paragraph = \Drupal::entityTypeManager()->getStorage('paragraph')->load($paragraph_id);
         
-        if ($y_value !== FALSE) {
-          $marker_data['y'] = $y_value;
+        if ($paragraph) {
+          // Get X coordinate
+          if ($paragraph->hasField('field_dme_marker_x') && !$paragraph->get('field_dme_marker_x')->isEmpty()) {
+            $marker_data['x'] = $paragraph->get('field_dme_marker_x')->value;
+          }
+          
+          // Get Y coordinate
+          if ($paragraph->hasField('field_dme_marker_y') && !$paragraph->get('field_dme_marker_y')->isEmpty()) {
+            $marker_data['y'] = $paragraph->get('field_dme_marker_y')->value;
+          }
         }
       }
       
