@@ -38,7 +38,7 @@ function draggable_mapper_entity_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_inline_entity_form_entity_form_alter().
  */
-function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+ function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
   // Only act on draggable_mapper_entity
   if ($entity_form['#entity_type'] != 'draggable_mapper_entity') {
     return;
@@ -50,6 +50,7 @@ function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_f
   // Add the preview container
   _draggable_mapper_entity_add_preview_container($entity_form, $form_state);
 }
+
 
 /**
  * Helper function to add the preview container to a form.
@@ -116,6 +117,14 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
     ]
   ];
 
+  $form['dme_preview_container']['dme_unmapped_wrapper'] = [
+    '#type' => 'container',
+    '#attributes' => [
+      'id' => 'dme-unmapped-wrapper',
+      'class' => ['dme-unmapped-wrapper'],
+    ],
+  ];
+
   $form['dme_preview_container']['dme_container_wrapper'] = [
     '#type' => 'container',
     '#attributes' => [
@@ -138,14 +147,73 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
 
   $markers = _draggable_mapper_entity_get_marker_data($form, $form_state, 'field_dme_marker');
 
+  // Add a fallback message when there are no markers at all or no unmapped markers
+  if (empty($markers) || empty(array_filter($markers, function($marker) { return $marker['x'] === NULL || $marker['y'] === NULL; }))) {
+    $form['dme_preview_container']['dme_unmapped_wrapper']['fallback_message'] = [
+      '#type' => 'markup',
+      '#markup' => '<div class="dme-no-markers-message">' . new TranslatableMarkup('Add new markers to be mapped') . '</div>',
+    ];
+  }
+  dpm($markers);
+
   if (!empty($markers)) {
+    // Separate markers into mapped and unmapped
+    $markers_mapped = [];
+    $markers_unmapped = [];
+    
     foreach ($markers as $marker) {
-      // Initialize marker element variable
+      if ($marker['x'] === NULL || $marker['y'] === NULL) {
+        $markers_unmapped[] = $marker;
+      } else {
+        $markers_mapped[] = $marker;
+      }
+    }
+    // Add markers to the unmapped section
+    foreach ($markers_unmapped as $marker) {
+      // Get the icon if it exists
+      $icon_url = NULL;
       $marker_element = '';
-      
-      // If the marker has an icon file, display the icon image
-      if ($marker['icon_fid']) {
-        $icon_url = '';
+      if (!empty($marker['icon_fid'])) {
+        // Load the file entity using the file ID
+        $file = File::load($marker['icon_fid']);
+        if ($file) {
+          // Get the file URL generator service
+          $file_url_generator = \Drupal::service('file_url_generator');
+          // Generate a URL for the file that can be used in the browser
+          $icon_url = $file_url_generator->generateString($file->getFileUri());
+        }
+        // Create an image tag with the icon URL
+        $marker_element = '<img src="' . $icon_url . '" alt="Marker Icon" />';
+      } else {
+        // If no icon is available, use the marker title as fallback
+        $marker_element = $marker['title'];
+      }
+  
+      $marker_html = '<div class="dme-marker-wrapper">';
+      $marker_html .= $marker_element;
+      $marker_html .= '</div>';
+  
+      // Add to unmapped wrapper
+      $form['dme_preview_container']['dme_unmapped_wrapper']['dme_marker-' . $marker['index']] = [
+        '#type' => 'container',
+        '#attributes' => [
+          'class' => ['dme-marker', 'dme-unmapped-marker'],
+          'id' => 'dme-marker-' . $marker['index'],
+          'role' => 'application',
+          'aria-label' => new TranslatableMarkup('Interactive component positioning interface'),
+          'aria-describedby' => 'dme-instructions',
+          'aria-live' => 'polite' // Announces changes to screen readers
+        ], 
+        '#markup' => $marker_html
+      ];
+    }
+    
+    // Add markers to the mapped section
+    foreach ($markers_mapped as $marker) {
+      // Get the icon if it exists
+      $icon_url = NULL;
+      $marker_element = '';
+      if (!empty($marker['icon_fid'])) {
         // Load the file entity using the file ID
         $file = File::load($marker['icon_fid']);
         if ($file) {
@@ -164,33 +232,34 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
       $marker_html = '<div class="dme-marker-wrapper">';
       $marker_html .= $marker_element;
       $marker_html .= '</div>';
-  
+
+      // Add to mapped wrapper
       $form['dme_preview_container']['dme_container_wrapper']['dme_marker-' . $marker['index']] = [
         '#type' => 'container',
         '#attributes' => [
-          'class' => ['dme-marker'],
+          'class' => ['dme-marker', 'dme-mapped-marker'],
           'id' => 'dme-marker-' . $marker['index'],
           'role' => 'application',
           'aria-label' => new TranslatableMarkup('Interactive component positioning interface'),
           'aria-describedby' => 'dme-instructions',
-          'aria-live' => 'polite' // Announces changes to screen readers
+          'aria-live' => 'polite',
+          'style' => isset($marker['x'], $marker['y']) ? 'left: ' . ($marker['x'] * 100) . '%; top: ' . ($marker['y'] * 100) . '%;' : '',
         ], 
         '#markup' => $marker_html
-      ];  
+      ];
     }
   }
 
-// Accessible instructions
-$form['dme_preview_container']['instructions'] = [
-  '#type' => 'html_tag',
-  '#tag' => 'div',
-  '#attributes' => [
-    'id' => 'dme-instructions',
-    'class' => ['visually-hidden'], // Hidden visually but available to screen readers
-  ],
-  '#value' => new TranslatableMarkup('Use arrow keys or drag to position elements on the map surface.')
-];
-  
+  // Accessible instructions
+  $form['dme_preview_container']['instructions'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'div',
+    '#attributes' => [
+      'id' => 'dme-instructions',
+      'class' => ['visually-hidden'], // Hidden visually but available to screen readers
+    ],
+    '#value' => new TranslatableMarkup('Use arrow keys or drag to position elements on the map surface.')
+  ];
 }
 
 /**
@@ -214,6 +283,8 @@ function draggable_mapper_entity_library_info_build() {
       'core/drupal',
       'core/drupal.once',
       'core/drupalSettings',
+      'core/jquery.ui',
+      'core/jquery.ui.draggable',
     ],
   ];
   
@@ -284,7 +355,6 @@ function _draggable_mapper_entity_get_image_fid($form, $form_state, $field_name 
   return $image_fid;
 }
 
-
 /**
  * Helper function to extract marker data from field_dme_marker paragraphs.
  *
@@ -300,36 +370,49 @@ function _draggable_mapper_entity_get_image_fid($form, $form_state, $field_name 
  *   - index: The index of the marker item
  *   - title: The marker title
  *   - icon_fid: The file ID of the marker icon (if it exists), NULL otherwise
+ *   - x: The X coordinate of the marker (if it exists), NULL otherwise
+ *   - y: The Y coordinate of the marker (if it exists), NULL otherwise
  */
 function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_name = 'field_dme_marker') {
   $markers = [];
+  $entity_ids = [];
   
-  // Try to get marker data from form state values
-  if ($form_state && $form_state->getValue($field_name)) {
-    $values = $form_state->getValue($field_name);
-    
-    if (!empty($values) && is_array($values)) {
-      foreach ($values as $index => $item) {
-        $marker_data = [
-          'index' => $index,
-          'title' => isset($item['subform']['field_dme_marker_title'][0]['value']) 
-            ? $item['subform']['field_dme_marker_title'][0]['value'] 
-            : '',
-          'icon_fid' => NULL,
-        ];
-        
-        // Get icon fid if it exists
-        if (isset($item['subform']['field_dme_marker_icon'][0]['fids'][0])) {
-          $marker_data['icon_fid'] = $item['subform']['field_dme_marker_icon'][0]['fids'][0];
-        }
-        
-        $markers[] = $marker_data;
-      }
-    }
+  // Get the entity from the form
+  $entity = NULL;
+  if (isset($form['#entity'])) {
+    $entity = $form['#entity'];
+  }
+  elseif ($form_state->has('entity')) {
+    $entity = $form_state->get('entity');
   }
   
-  // If no values in form state, try from default values
-  if (empty($markers) && isset($form[$field_name]['widget'])) {
+  // Try to get saved X/Y coordinates from the database
+  if ($entity && !$entity->isNew()) {
+    // Get entity ID
+    $entity_id = $entity->id();
+    $entity_type = $entity->getEntityTypeId();
+    
+    // Query for paragraphs related to this entity
+    $connection = \Drupal::database();
+    $query = $connection->select('paragraphs_item_field_data', 'p');
+    $query->fields('p', ['id', 'parent_id', 'parent_field_name', 'parent_type']);
+    $query->condition('p.parent_id', $entity_id);
+    $query->condition('p.parent_type', $entity_type);
+    $query->condition('p.parent_field_name', $field_name);
+    $paragraphs = $query->execute()->fetchAll();
+    
+    // Create a map of paragraphs by their IDs
+    $paragraph_map = [];
+    foreach ($paragraphs as $paragraph) {
+      $paragraph_map[$paragraph->id] = $paragraph;
+    }
+    
+    // Store the paragraph IDs
+    $entity_ids = array_keys($paragraph_map);
+  }
+  
+  // Process form widget data
+  if (isset($form[$field_name]['widget'])) {
     foreach ($form[$field_name]['widget'] as $index => $item) {
       // Skip non-numeric indexes
       if (!is_numeric($index)) {
@@ -340,6 +423,8 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
         'index' => $index,
         'title' => '',
         'icon_fid' => NULL,
+        'x' => NULL,
+        'y' => NULL,
       ];
       
       // Get title from default value
@@ -352,9 +437,36 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
         $marker_data['icon_fid'] = $item['subform']['field_dme_marker_icon']['widget'][0]['#default_value']['fids'][0];
       }
       
+      // If we have paragraph IDs and this is an existing entity
+      if (!empty($entity_ids) && isset($entity_ids[$index])) {
+        $paragraph_id = $entity_ids[$index];
+        
+        // Get X and Y coordinates from the database
+        $x_value = \Drupal::database()->select('paragraph__field_dme_marker_x', 'x')
+          ->fields('x', ['field_dme_marker_x_value'])
+          ->condition('x.entity_id', $paragraph_id)
+          ->execute()
+          ->fetchField();
+          
+        $y_value = \Drupal::database()->select('paragraph__field_dme_marker_y', 'y')
+          ->fields('y', ['field_dme_marker_y_value'])
+          ->condition('y.entity_id', $paragraph_id)
+          ->execute()
+          ->fetchField();
+          
+        if ($x_value !== FALSE) {
+          $marker_data['x'] = $x_value;
+        }
+        
+        if ($y_value !== FALSE) {
+          $marker_data['y'] = $y_value;
+        }
+      }
+      
       $markers[] = $marker_data;
     }
   }
   
   return $markers;
 }
+

@@ -12,9 +12,7 @@ label: 'Y Coordinate'
 description: 'Y coordinate of the marker on the image (percentage from top).'
 required: true
 translatable: false
-default_value:
-  -
-    value: 0
+default_value: null
 default_value_callback: ''
 settings:
   min: 0

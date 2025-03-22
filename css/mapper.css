@@ -10,6 +10,16 @@
   clear: both;
 }
 
+.dme-unmapped-wrapper {
+  position: relative;
+  border: 1px solid #ccc; 
+  max-width: 100%;
+  margin: 10px 0;
+  padding: 5px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .dme-container-wrapper {
   position: relative;
   display: inline-block;
@@ -30,17 +40,33 @@
 }
 
 .dme-marker {
-  position: absolute;
-  z-index: 10;
-  top: 0;
-  padding: 5px;
-  cursor: move; /* Changed from pointer to move to indicate draggable */
+  padding: 5px 10px;
+  cursor: move;
   border: 1px solid #ccc; 
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-  user-select: none; /* Prevent text selection while dragging */
+  width: fit-content;
+  height: fit-content;
+  user-select: none;
+}
+
+.dme-mapped-marker {
+  position: absolute;
+  z-index: 10;
+}
+
+.dme-unmapped-marker {
+  margin: 5px;
+}
+
+.dme-no-markers-message {
+  padding: 8px;
+  font-style: italic;
+  color: #666;
+  text-align: center;
+  width: 100%;
 }
 
 .dme-marker:hover {

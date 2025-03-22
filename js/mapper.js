@@ -39,8 +39,19 @@
      */
     Drupal.behaviors.markerHandler = {
       attach: function (context, settings) {
+
+        // Make markers draggable
+        initDraggableMarkers(context);
+
+        // Check for existing uploaded marker icons on page load
+        once('check-existing-icons', 'body', context).forEach(function() {
+          initializeExistingMarkerIcons();
+        });
+
         // Process marker title fields
         once('marker-title-handler', '.field--name-field-dme-marker-title input[type="text"]', context).forEach(function(titleInput) {
+          // Initialize the marker with current value or default
+          updateMarker($(titleInput));
           $(titleInput).on('input', function() {
             updateMarker($(this));
           });
@@ -51,7 +62,7 @@
           $(iconInput).on('change', function() {
             updateMarkerIcon($(this));
           });
-        }); 
+        });
 
         once('paragraph-operations', '.field--name-field-dme-marker', context).forEach(function(paragraphField) {
           // Set up a MutationObserver to detect when paragraphs are removed
@@ -69,12 +80,27 @@
         
         // Listen for AJAX events to capture file removal
         $(document).ajaxSuccess(function(event, xhr, settings) {
-          
           // Check if this is a file removal AJAX call
           if (settings.url && settings.url.indexOf('field_dme_marker_icon') !== -1) { 
             // Give a moment for the DOM to update
             setTimeout(checkAndUpdateMarkers, 500);
           }
+
+          // Check if this might be a paragraph add/update operation
+          if (settings.url && (
+            settings.url.indexOf('field_dme_marker') !== -1 || 
+            settings.url.indexOf('paragraphs') !== -1 ||
+            settings.url.indexOf('ajax_form') !== -1)) {
+              // Give a moment for the DOM to update
+              setTimeout(function() {
+                // Process all title inputs, including newly added ones
+                $('.field--name-field-dme-marker-title input[type="text"]').each(function() {
+                  var $input = $(this);
+                  // Update the marker
+                  updateMarker($input);
+                });
+              }, 500);
+            }
         });
       }
     };
@@ -92,13 +118,29 @@
       if ($paragraphItem.length) {
         // Get paragraph delta (index)
         var delta = getDeltaFromParagraph($paragraphItem);
-        var title = $titleInput.val() || 'Untitled marker';
-        
-        // Create or update the marker, but only if there's no icon
+        // Check if this paragraph already has an icon uploaded or if marker already has an icon
+        var hasUploadedFile = $paragraphItem.find('.field--name-field-dme-marker-icon .file').length > 0;
         var $marker = $('#dme-marker-' + delta);
-        if (!$marker.length || !$marker.hasClass('has-icon')) {
-          ensureMarkerExists(delta, title);
-        }     
+        var hasIconClass = $marker.length && $marker.hasClass('has-icon');
+        
+        // If there's an uploaded file or the marker already has an icon class, don't update with the title
+        if (hasUploadedFile || hasIconClass) {
+          return;
+        }        
+        // Get the input value, but use a default for the marker if empty
+        var inputValue = $.trim($titleInput.val());
+        var displayTitle = inputValue || Drupal.t('Untitled marker');
+ 
+        // Create or update the marker, but only if there's no icon
+        if (!$marker.length) {
+          ensureMarkerExists(delta, displayTitle);
+          // Mark it explicitly as a title marker
+          $('#dme-marker-' + delta).addClass('has-title');
+        } else if (!$marker.hasClass('has-icon')) {
+          // Update the title if it's not an icon marker
+          $marker.find('.dme-marker-wrapper').text(displayTitle);
+          $marker.addClass('has-title');
+        }
       }
     }
    
@@ -154,17 +196,43 @@
      * Ensures a marker with the given delta exists in the map container.
      */
     function ensureMarkerExists(delta, title) {
-      var $container = $('.dme-container-wrapper');
+      var $container = $('.dme-unmapped-wrapper');
       var $marker = $('#dme-marker-' + delta);
       if (!$marker.length) {
         // Create new marker
-        var markerHtml = '<div id="dme-marker-' + delta + '" class="dme-marker js-form-wrapper form-wrapper" role="application" aria-label="Interactive component positioning interface" aria-describedby="dme-instructions" aria-live="polite">';
-        markerHtml += '<div class="dme-marker-wrapper">';    
-        markerHtml += '</div></div>';
+        var markerHtml = '<div id="dme-marker-' + delta + '" class="dme-marker dme-unmapped-marker js-form-wrapper form-wrapper" role="application" aria-label="Interactive component positioning interface" aria-describedby="dme-instructions" aria-live="polite">';
+        markerHtml += '<div class="dme-marker-wrapper">' + title + '</div></div>';
         $container.append(markerHtml);
+        // Check if we need to hide the no markers message
+        checkAndHideNoMarkersMessage();
       }
       // Update marker text
       $marker.find('.dme-marker-wrapper').text(title);
+    }
+
+    /**
+     * Check if there are markers in the unmapped wrapper and hide the no markers message if needed
+     */
+    function checkAndHideNoMarkersMessage() {
+      var $container = $('.dme-unmapped-wrapper');
+      if ($container.find('.dme-marker').length > 0) {
+        // Find the message if it exists
+        var $message = $container.find('.dme-no-markers-message');
+        if ($message.length > 0) {
+          // Fade out the message before removing it
+          $message.fadeOut(400, function() {
+            $(this).remove();
+          });
+        }
+      } else {
+        // If no markers are present and the message doesn't exist, add it with fade in
+        if ($container.find('.dme-no-markers-message').length === 0) {
+          var $message = $('<div class="dme-no-markers-message" style="display: none;">' + 
+                         Drupal.t('Add new markers to be mapped') + '</div>');
+          $container.append($message);
+          $message.fadeIn(400);
+        }
+      }
     }
 
     /**
@@ -195,6 +263,8 @@
           $(this).remove();
         }
       });
+      // Check if we need to show or hide the no markers message
+      checkAndHideNoMarkersMessage();
     }
     
     /**
@@ -258,5 +328,164 @@
         });
       });
     }
+
+    /**
+     * Initialize draggability for marker elements
+     */
+    function initDraggableMarkers(context) {
+      // Get all markers and make them draggable
+      once('draggable', '.dme-marker', context).forEach(function(marker) {
+        $(marker).draggable({
+          helper: 'clone', // Create a clone for dragging to make transitions smoother
+          appendTo: 'body', // Attach the helper to the body to avoid containment issues during drag
+          zIndex: 1000, // Ensure the dragged item appears above other elements
+          opacity: 0.7, // Slightly transparent while dragging
+          cursor: 'move',
+          
+          // When drag starts
+          start: function(event, ui) {
+            // Store original position for revert if needed
+            $(this).data('originalPosition', $(this).position());
+            $(this).data('originalParent', $(this).parent());
+            
+            // Hide the original element while dragging the clone
+            $(this).css('opacity', '0.3');
+          },
+          
+          // During drag
+          drag: function(event, ui) {
+            // Check if we're over the target container
+            var isOverContainer = false;
+            var $container = $('.dme-container-wrapper');
+            var containerOffset = $container.offset();
+            
+            if (containerOffset && 
+                ui.position.left >= containerOffset.left && 
+                ui.position.left <= containerOffset.left + $container.width() &&
+                ui.position.top >= containerOffset.top && 
+                ui.position.top <= containerOffset.top + $container.height()) {
+              isOverContainer = true;
+              // Add a visual indicator that we're over the drop target
+              $container.addClass('dme-drop-hover');
+            } else {
+              $container.removeClass('dme-drop-hover');
+            }
+          },
+          
+          // When drag stops
+          stop: function(event, ui) {
+            // Get marker ID from the element
+            var markerId = $(this).attr('id');
+            var delta = parseInt(markerId.replace('dme-marker-', ''), 10);
+            var $container = $('.dme-container-wrapper');
+            var $marker = $(this);
+            
+            // Reset opacity of original
+            $marker.css('opacity', '1');
+            
+            // Check if we've dropped on the target container
+            var containerOffset = $container.offset();
+            if (containerOffset && 
+                ui.offset.left >= containerOffset.left && 
+                ui.offset.left <= containerOffset.left + $container.width() &&
+                ui.offset.top >= containerOffset.top && 
+                ui.offset.top <= containerOffset.top + $container.height()) {
+              
+              // Calculate position within the target container
+              var relativeX = ui.offset.left - containerOffset.left;
+              var relativeY = ui.offset.top - containerOffset.top;
+              
+              // Move the original marker to the container at the right position
+              $marker.detach().appendTo($container);
+              $marker.css({
+                position: 'absolute',
+                left: relativeX + 'px',
+                top: relativeY + 'px'
+              });
+              
+              // Mark as mapped
+              $marker.removeClass('dme-unmapped-marker').addClass('dme-mapped-marker');
+              
+              // Check if this was the last marker in the unmapped wrapper
+              checkForEmptyUnmappedWrapper();
+            }
+            
+            // Remove any hover effects
+            $container.removeClass('dme-drop-hover');
+          }
+        });
+      });
+    }
+
+    /**
+     * Check if the unmapped wrapper is empty and show the "no markers" message with fade-in effect if it is
+     */
+    function checkForEmptyUnmappedWrapper() {
+      var $unmappedContainer = $('.dme-unmapped-wrapper');
+      
+      // If there are no more markers in the unmapped wrapper
+      if ($unmappedContainer.find('.dme-marker').length === 0) {
+        // If the message doesn't exist, add it with fade in effect
+        if ($unmappedContainer.find('.dme-no-markers-message').length === 0) {
+          var $message = $('<div class="dme-no-markers-message" style="display: none;">' + 
+                        Drupal.t('Add new markers to be mapped') + '</div>');
+          $unmappedContainer.append($message);
+          $message.fadeIn(400); // Fade in over 400ms
+        }
+      }
+    }
+
+    /**
+     * Checks for existing uploaded marker icons on page load and updates markers accordingly
+     */
+    function initializeExistingMarkerIcons() {
+      // Find all marker paragraphs with uploaded icons
+      $('.paragraph-type--dme-marker .field--name-field-dme-marker-icon .file, .paragraphs-subform .field--name-field-dme-marker-icon .file').each(function() {
+        // Get the paragraph delta
+        var $paragraphItem = $(this).closest('.paragraph-type--dme-marker');
+        if (!$paragraphItem.length) {
+          $paragraphItem = $(this).closest('.paragraphs-subform');
+        }
+        
+        if (!$paragraphItem.length) {
+          return;
+        }
+        
+        var delta = getDeltaFromParagraph($paragraphItem);
+        if (delta === null) {
+          return;
+        }
+        
+        // Find the image source
+        var imgSrc = $(this).find('img').attr('src');
+        if (!imgSrc) {
+          return;
+        }
+        
+        // Update marker with this icon
+        var $marker = $('#dme-marker-' + delta);
+        if ($marker.length) {
+          // First empty the wrapper completely
+          var $wrapper = $marker.find('.dme-marker-wrapper');
+          $wrapper.empty();
+          // Then add only the image
+          $wrapper.html('<img src="' + imgSrc + '" alt="Marker Icon" />');
+          // Add a class to indicate this marker has an icon
+          $marker.addClass('has-icon').removeClass('has-title');
+        } else {
+          // We need to create the marker first
+          ensureMarkerExists(delta, '');
+          // Now update it with the icon
+          var $newMarker = $('#dme-marker-' + delta);
+          $newMarker.find('.dme-marker-wrapper').empty().html('<img src="' + imgSrc + '" alt="Marker Icon" />');
+          $newMarker.addClass('has-icon').removeClass('has-title');
+        }
+      });
+      
+      // Check and hide the no markers message if needed
+      checkAndHideNoMarkersMessage();
+    }
+
+
   
   })(jQuery, Drupal, drupalSettings, once);
