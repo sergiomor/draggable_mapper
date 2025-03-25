@@ -1,0 +1,81 @@
+/**
+ * Styles for the Draggable Mapper entity.
+ */
+
+.dme-container {
+  position: relative;
+  margin: 20px 0;
+  border: 1px solid #ccc;
+  padding: 15px;
+  clear: both;
+}
+
+.dme-unmapped-wrapper {
+  position: relative;
+  border: 1px solid #ccc; 
+  max-width: 100%;
+  margin: 10px 0;
+  padding: 5px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.dme-container-wrapper {
+  position: relative;
+  display: block;
+  border: 1px solid #ccc; 
+  max-width: 100%;
+}
+
+.dme-image {
+  position: relative;
+  max-width: 100%;
+  min-height: 100px; 
+}
+
+.dme-image img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.dme-marker {
+  padding: 5px 10px;
+  cursor: pointer;
+  border: 1px solid #ccc; 
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  width: fit-content;
+  height: fit-content;
+  user-select: none;
+}
+
+.dme-mapped-marker {
+  position: absolute;
+  z-index: 10;
+}
+
+.dme-marker:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.dme-marker-wrapper {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px;
+}
+
+.dme-marker img {
+  max-width: 30px;
+  max-height: 30px;
+  display: block;
+  margin: 0 auto;
+}
+

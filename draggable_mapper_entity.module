@@ -86,8 +86,14 @@ function template_preprocess_draggable_mapper_entity(array &$variables) {
   $variables['markers'] = [];
   if (!$entity->get('field_dme_marker')->isEmpty()) {
     foreach ($entity->get('field_dme_marker')->referencedEntities() as $index => $paragraph) {
-      // Debug available fields on the paragraph
-      \Drupal::messenger()->addMessage('Paragraph fields: ' . implode(', ', array_keys($paragraph->getFields())));
+      
+      // Bypass unmapped markers (with null or empty coordinates)
+      if ($paragraph->get('field_dme_marker_x')->isEmpty() || 
+          $paragraph->get('field_dme_marker_y')->isEmpty() ||
+          $paragraph->get('field_dme_marker_x')->value === NULL ||
+          $paragraph->get('field_dme_marker_y')->value === NULL) {
+        continue; // Skip this marker
+      }
       
       $marker = [
         'x' => $paragraph->get('field_dme_marker_x')->value * 100,
@@ -128,7 +134,7 @@ function template_preprocess_draggable_mapper_entity(array &$variables) {
   }
   
   // Add library for viewing
-  $variables['#attached']['library'][] = 'draggable_mapper_entity/mapper';
+  $variables['#attached']['library'][] = 'draggable_mapper_entity/draggable_mapper.view';
 }
 
 /**
@@ -164,7 +170,7 @@ function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_f
     return;
   }
   // Add the library
-  $entity_form['#attached']['library'][] = 'draggable_mapper_entity/mapper';
+  $entity_form['#attached']['library'][] = 'draggable_mapper_entity/draggable_mapper.form';
   // Add the preview container
   _draggable_mapper_entity_add_preview_container($entity_form, $form_state);
 }
@@ -565,12 +571,12 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
         if ($paragraph) {
           // Get X coordinate
           if ($paragraph->hasField('field_dme_marker_x') && !$paragraph->get('field_dme_marker_x')->isEmpty()) {
-            $marker_data['x'] = $paragraph->get('field_dme_marker_x')->value * 100;
+            $marker_data['x'] = $paragraph->get('field_dme_marker_x')->value;
           }
           
           // Get Y coordinate
           if ($paragraph->hasField('field_dme_marker_y') && !$paragraph->get('field_dme_marker_y')->isEmpty()) {
-            $marker_data['y'] = $paragraph->get('field_dme_marker_y')->value * 100;
+            $marker_data['y'] = $paragraph->get('field_dme_marker_y')->value;
           }
         }
       }

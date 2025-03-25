@@ -40,3 +40,15 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {}
+  field_dme_marker_x:
+    type: number
+    weight: 4
+    region: content
+    settings: {}
+    third_party_settings: {}
+  field_dme_marker_y:
+    type: number
+    weight: 5
+    region: content
+    settings: {}
+    third_party_settings: {}

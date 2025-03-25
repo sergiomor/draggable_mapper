@@ -523,7 +523,5 @@
     
     // Check and hide the no markers message if needed
     checkAndHideNoMarkersMessage();
-  }
-
-   
+  } 
 })(jQuery, Drupal, drupalSettings, once);
