@@ -19,7 +19,10 @@ Draggable Mapper lets you place markers on an image map using a user-friendly dr
 ## Use Cases
 
 ### Floor Plans and Building Maps
-Create interactive floor plans for buildings, malls, or campuses with points of interest that visitors can interact with. Perfect for architectural diagrams, evacuation plans,components in diagrams, facility maps, and similar visual schematics.
+Create interactive floor plans for buildings, malls, or campuses with points of interest that visitors can interact with. Perfect for architectural diagrams, evacuation plans, facility maps, and similar visual schematics.
+
+### Components in Systems
+Create diagrams with components that can be interacted with, such as boat rigging systems, automotive parts diagrams, HVAC system layouts, electrical circuit diagrams, network infrastructure maps, industrial machinery schematics, or plumbing system overviews.
 
 ### Image Annotations
 Add interactive markers to any image to create a more engaging content experience.
@@ -39,6 +42,7 @@ Create interactive diagrams with explanatory markers for educational content.
 
 1. Download and extract the module to your `/modules/custom` directory.
 2. Enable the module through the Drupal admin interface (`/admin/modules`) or using Drush:
+
    ```
    drush en draggable_mapper_entity
    ```
