@@ -22,7 +22,7 @@
 
 .dme-container-wrapper {
   position: relative;
-  display: inline-block;
+  display: block;
   border: 1px solid #ccc; 
   max-width: 100%;
 }

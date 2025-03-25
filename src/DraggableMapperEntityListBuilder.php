@@ -28,7 +28,7 @@ class DraggableMapperEntityListBuilder extends EntityListBuilder {
     $row['id'] = $entity->id();
     $row['name'] = Link::createFromRoute(
       $entity->label(),
-      'entity.draggable_mapper_entity.edit_form',
+      'entity.draggable_mapper_entity.canonical',
       ['draggable_mapper_entity' => $entity->id()]
     );
     return $row + parent::buildRow($entity);

@@ -15,8 +15,8 @@ use Drupal\Core\Entity\ContentEntityInterface;
  *
  * @ContentEntityType(
  *   id = "draggable_mapper_entity",
- *   label = @Translation("Draggable Mapper Entity"),
- *   label_collection = @Translation("Draggable Mapper Entities"),
+ *   label = @Translation("Draggable Mapper"),
+ *   label_collection = @Translation("Draggable Mapper"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\draggable_mapper_entity\DraggableMapperEntityListBuilder",

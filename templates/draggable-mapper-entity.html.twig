@@ -8,6 +8,8 @@
  * - map_image_url: URL to the map image.
  * - markers: Array of marker data with coordinates and optional titles/descriptions.
  * - content: All items for this entity.
+ * - title: The title of the entity.
+ * - view_mode: The view mode of the entity.
  *
  * @see template_preprocess_draggable_mapper_entity()
  *
@@ -15,6 +17,15 @@
  */
 #}
 <div{{ attributes.addClass('draggable-mapper-entity') }}>
+  {% if title %}
+    {# Use h1 for full view mode, h2 for all other cases #}
+    {% if view_mode == 'full' %}
+      <h1 class="draggable-mapper-entity__title">{{ title }}</h1>
+    {% else %}
+      <h2 class="draggable-mapper-entity__title">{{ title }}</h2>
+    {% endif %}
+  {% endif %}
+  
   {% if content %}
     {% if map_image_url %}
       <div class="dme-container">
@@ -23,12 +34,12 @@
           
           {% if markers %}
             {% for marker in markers %}
-              <div class="dme-marker" style="left: {{ marker.x }}%; top: {{ marker.y }}%;" 
+              <div class="dme-marker dme-mapped-marker" style="left: {{ marker.x }}%; top: {{ marker.y }}%;" 
                    {% if marker.title %}title="{{ marker.title }}"{% endif %}>
                 {% if marker.icon_url %}
                   <img src="{{ marker.icon_url }}" alt="{{ marker.title|default('Marker') }}" />
                 {% else %}
-                  <div class="dme-marker-default"></div>
+                  <div class="dme-marker-default">{{ marker.title }}</div>
                 {% endif %}
                 
                 {% if marker.description %}
@@ -40,10 +51,6 @@
         </div>
       </div>
     {% endif %}
-    
-    {# Content without the rendered fields #}
-    <div class="dme-content">
-      {{ content|without('field_dme_image', 'field_dme_marker') }}
-    </div>
+
   {% endif %}
 </div>

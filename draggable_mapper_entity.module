@@ -9,6 +9,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\file\Entity\File;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Render\Element;
 
 /**
  * Implements hook_help().
@@ -20,6 +21,8 @@ function draggable_mapper_entity_help($route_name, RouteMatchInterface $route_ma
       $output .= '<h3>' . \Drupal::translation()->translate('About') . '</h3>';
       $output .= '<p>' . \Drupal::translation()->translate('The Draggable Mapper Entity module provides a custom entity type for creating maps with draggable markers.') . '</p>';
       return $output;
+    case 'entity.draggable_mapper_entity.collection':
+      return '<p>' . \Drupal::translation()->translate('Draggable Mappers allow you to create interactive maps with draggable markers. Each mapper consists of a background image and one or more markers that can be positioned on the image.') . '</p>';
   }
 }
 
@@ -36,34 +39,181 @@ function draggable_mapper_entity_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Prepares variables for draggable mapper entity templates.
+ *
+ * Default template: draggable-mapper-entity.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing rendered fields.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_draggable_mapper_entity(array &$variables) {
+  /** @var \Drupal\draggable_mapper_entity\Entity\DraggableMapperEntity $entity */
+  $entity = $variables['elements']['#draggable_mapper_entity'];
+  $variables['draggable_mapper_entity'] = $entity;
+  
+  // Add the entity title explicitly
+  $variables['title'] = $entity->label();
+  
+  // Add entity label as a separate variable (Drupal convention)
+  $variables['label'] = $entity->label();
+  
+  // Add the entity ID and bundle as classes
+  $variables['attributes']['class'][] = 'draggable-mapper-entity';
+  $variables['attributes']['class'][] = 'draggable-mapper-entity--id-' . $entity->id();
+  
+  // Add view mode class
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['attributes']['class'][] = 'draggable-mapper-entity--view-mode-' . $variables['view_mode'];
+  
+  // Process the content
+  $variables['content'] = [];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+  
+  // Get the map image URL
+  $variables['map_image_url'] = '';
+  if (!$entity->get('field_dme_image')->isEmpty()) {
+    $image_file = File::load($entity->get('field_dme_image')->target_id);
+    if ($image_file) {
+      $variables['map_image_url'] = \Drupal::service('file_url_generator')->generateString($image_file->getFileUri());
+    }
+  }
+  
+  // Get the markers
+  $variables['markers'] = [];
+  if (!$entity->get('field_dme_marker')->isEmpty()) {
+    foreach ($entity->get('field_dme_marker')->referencedEntities() as $index => $paragraph) {
+      // Debug available fields on the paragraph
+      \Drupal::messenger()->addMessage('Paragraph fields: ' . implode(', ', array_keys($paragraph->getFields())));
+      
+      $marker = [
+        'x' => $paragraph->get('field_dme_marker_x')->value * 100,
+        'y' => $paragraph->get('field_dme_marker_y')->value * 100,
+      ];
+      
+      // Add title/description if available
+      if ($paragraph->hasField('field_dme_marker_title') && !$paragraph->get('field_dme_marker_title')->isEmpty()) {
+        $marker['title'] = $paragraph->get('field_dme_marker_title')->value;
+      }
+      elseif ($paragraph->hasField('field_title') && !$paragraph->get('field_title')->isEmpty()) {
+        // Try an alternate field name
+        $marker['title'] = $paragraph->get('field_title')->value;
+      }
+      else {
+        // Use a default if no title field is found
+        $marker['title'] = 'Marker ' . ($index + 1);
+      }
+      
+      if ($paragraph->hasField('field_dme_marker_description') && !$paragraph->get('field_dme_marker_description')->isEmpty()) {
+        $marker['description'] = [
+          '#type' => 'processed_text',
+          '#text' => $paragraph->get('field_dme_marker_description')->value,
+          '#format' => $paragraph->get('field_dme_marker_description')->format,
+        ];
+      }
+      
+      // Add icon if available
+      if ($paragraph->hasField('field_dme_marker_icon') && !$paragraph->get('field_dme_marker_icon')->isEmpty()) {
+        $icon_file = File::load($paragraph->get('field_dme_marker_icon')->target_id);
+        if ($icon_file) {
+          $marker['icon_url'] = \Drupal::service('file_url_generator')->generateString($icon_file->getFileUri());
+        }
+      }
+      
+      $variables['markers'][] = $marker;
+    }
+  }
+  
+  // Add library for viewing
+  $variables['#attached']['library'][] = 'draggable_mapper_entity/mapper';
+}
+
+/**
+ * Implements hook_entity_form_display_alter().
+ */
+function draggable_mapper_entity_entity_form_display_alter(&$form_display, $context) {
+  // Only act on paragraph entities of dme_marker bundle
+  if ($context['entity_type'] == 'paragraph' && $context['bundle'] == 'dme_marker') {
+    // Hide the x and y coordinate fields
+    if ($form_display->getComponent('field_dme_marker_x')) {
+      $form_display->setComponent('field_dme_marker_x', [
+        'type' => 'hidden',
+        'region' => 'hidden',
+        'weight' => 99,
+      ]);
+    }
+    if ($form_display->getComponent('field_dme_marker_y')) {
+      $form_display->setComponent('field_dme_marker_y', [
+        'type' => 'hidden',
+        'region' => 'hidden',
+        'weight' => 99,
+      ]);
+    }
+  }
+}
+
+/**
  * Implements hook_inline_entity_form_entity_form_alter().
  */
- function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
   // Only act on draggable_mapper_entity
   if ($entity_form['#entity_type'] != 'draggable_mapper_entity') {
     return;
   }
-
   // Add the library
   $entity_form['#attached']['library'][] = 'draggable_mapper_entity/mapper';
-  
   // Add the preview container
   _draggable_mapper_entity_add_preview_container($entity_form, $form_state);
 }
-
 
 /**
  * Helper function to add the preview container to a form.
  */
 function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NULL) {
-  // Don't add the container for delete forms or other special forms
-  // if (isset($form['#theme']) && in_array($form['#theme'], ['confirm_form'])) {
-  //   return;
-  // }
-
-  // Check if we have the necessary fields
-  if (!isset($form['field_dme_image'])) {
-    return;
+ 
+  // Set coordinates fields to hidden
+  if (isset($form['field_dme_marker']) && isset($form['field_dme_marker']['widget'])) {
+    // Attempt to hide the coordinate fields by making them hidden inputs
+    foreach (Element::children($form['field_dme_marker']['widget']) as $delta) {
+      if (isset($form['field_dme_marker']['widget'][$delta]['subform'])) {
+        // Handle X coordinate field
+        if (isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_x']) &&
+            isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_x']['widget'])) {
+          // Try different ways to hide this field
+          $x_widget = &$form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_x']['widget'];
+          
+          // Try approach #1: Set widget type directly if possible
+          if (isset($x_widget[0])) {
+            if (isset($x_widget[0]['value'])) {
+              $x_widget[0]['value']['#type'] = 'hidden';
+            }
+            else {
+              $x_widget[0]['#type'] = 'hidden';
+            }
+          }
+        }
+        
+        // Handle Y coordinate field
+        if (isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']) &&
+            isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']['widget'])) {
+          // Try different ways to hide this field
+          $y_widget = &$form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']['widget'];
+          
+          // Try approach #1: Set widget type directly if possible
+          if (isset($y_widget[0])) {
+            if (isset($y_widget[0]['value'])) {
+              $y_widget[0]['value']['#type'] = 'hidden';
+            }
+            else {
+              $y_widget[0]['#type'] = 'hidden';
+            }
+          }
+        }
+      }
+    }
   }
 
   // Get image file URL if available
@@ -262,36 +412,6 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
 }
 
 /**
- * Implements hook_library_info_build().
- */
-function draggable_mapper_entity_library_info_build() {
-  $libraries = [];
-  
-  $libraries['mapper'] = [
-    'version' => '1.x',
-    'css' => [
-      'theme' => [
-        'css/mapper.css' => [],
-      ],
-    ],
-    'js' => [
-      'js/mapper.js' => [],
-    ],
-    'dependencies' => [
-      'core/jquery',
-      'core/drupal',
-      'core/drupal.once',
-      'core/drupalSettings',
-      'core/jquery.ui',
-      'core/jquery.ui.draggable',
-    ],
-  ];
-  
-  return $libraries;
-}
-
-
-/**
  * Helper function to extract image FID from various form sources.
  *
  * @param array $form
@@ -399,9 +519,6 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
         }
       }
     }
-    
-    // Store the paragraph IDs
-    //$entity_ids = array_keys($paragraph_map);
   }
   
   // Process form widget data
@@ -424,6 +541,14 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
       if (isset($item['subform']['field_dme_marker_title']['widget'][0]['value']['#default_value'])) {
         $marker_data['title'] = $item['subform']['field_dme_marker_title']['widget'][0]['value']['#default_value'];
       }
+      elseif (isset($item['subform']['field_title']['widget'][0]['value']['#default_value'])) {
+        // Try an alternate field name
+        $marker_data['title'] = $item['subform']['field_title']['widget'][0]['value']['#default_value'];
+      }
+      else {
+        // Use a default if no title field is found
+        $marker_data['title'] = 'Marker ' . ($index + 1);
+      }
       
       // Get icon from default value
       if (isset($item['subform']['field_dme_marker_icon']['widget'][0]['#default_value']['fids'][0])) {
@@ -434,18 +559,18 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
       if (!empty($entity_ids) && isset($entity_ids[$index])) {
         $paragraph_id = $entity_ids[$index];
         
-        // Load the paragraph entity instead of querying the database directly
+        // Load the paragraph entity
         $paragraph = \Drupal::entityTypeManager()->getStorage('paragraph')->load($paragraph_id);
         
         if ($paragraph) {
           // Get X coordinate
           if ($paragraph->hasField('field_dme_marker_x') && !$paragraph->get('field_dme_marker_x')->isEmpty()) {
-            $marker_data['x'] = $paragraph->get('field_dme_marker_x')->value;
+            $marker_data['x'] = $paragraph->get('field_dme_marker_x')->value * 100;
           }
           
           // Get Y coordinate
           if ($paragraph->hasField('field_dme_marker_y') && !$paragraph->get('field_dme_marker_y')->isEmpty()) {
-            $marker_data['y'] = $paragraph->get('field_dme_marker_y')->value;
+            $marker_data['y'] = $paragraph->get('field_dme_marker_y')->value * 100;
           }
         }
       }
@@ -453,7 +578,6 @@ function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_nam
       $markers[] = $marker_data;
     }
   }
-  
+
   return $markers;
 }
-

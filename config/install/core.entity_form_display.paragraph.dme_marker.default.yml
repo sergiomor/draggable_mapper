@@ -40,6 +40,3 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {}
-hidden:
-  field_dme_marker_x: true
-  field_dme_marker_y: true

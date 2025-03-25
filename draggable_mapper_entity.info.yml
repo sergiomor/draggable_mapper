@@ -1,4 +1,4 @@
-name: Draggable Mapper Entity
+name: Draggable Mapper
 type: module
 description: 'Provides a draggable map entity with interactive markers.'
 package: Custom
@@ -7,6 +7,5 @@ dependencies:
   - drupal:field
   - drupal:image
   - drupal:text
-  - drupal:entity_reference_revisions
   - paragraphs:paragraphs
   - inline_entity_form:inline_entity_form

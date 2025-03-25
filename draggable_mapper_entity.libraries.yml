@@ -1,0 +1,14 @@
+mapper:
+  version: 1.x
+  css:
+    theme:
+      css/mapper.css: {}
+  js:
+    js/mapper.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+    - jquery_ui/draggable
+    - jquery_ui/droppable
