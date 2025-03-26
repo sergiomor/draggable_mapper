@@ -94,6 +94,29 @@ Additional fields can be added to markers through the Paragraph entity type. Add
 
 The map display can be themed by overriding the `draggable-mapper-entity.html.twig` template.
 
+
+You can modify template variables using a preprocess function in your theme's .theme file:
+
+```php
+/**
+ * Implements hook_preprocess_HOOK() for draggable-mapper-entity.html.twig.
+ */
+function MYTHEME_preprocess_draggable_mapper_entity(&$variables) {
+  // Add or modify variables for the template
+  $variables['custom_variable'] = 'Custom value';
+  
+  // Modify marker properties
+  if (isset($variables['markers'])) {
+    foreach ($variables['markers'] as &$marker) {
+      // Example: Add a custom class to specific markers
+      if (isset($marker['title']) && $marker['title'] == 'Special marker') {
+        $marker['attributes']['class'][] = 'my-special-marker';
+      }
+    }
+  }
+}
+```
+
 ## Troubleshooting
 
 - If markers aren't draggable, check that jQuery UI is properly installed and the libraries are loaded.

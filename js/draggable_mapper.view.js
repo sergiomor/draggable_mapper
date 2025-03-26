@@ -6,76 +6,102 @@
   'use strict';
 
   /**
-   * Behavior for Draggable Mapper Entity in view mode.
+   * Behavior for Draggable Mapper view mode.
    */
   Drupal.behaviors.draggableMapperView = {
     attach: function (context, settings) {
-      once('mapper-view', '.draggable-mapper-entity', context).forEach(function(mapContainer) {
-        initViewMarkers(context);
+      // Initialize the map container once
+      once('dme-container', '.dme-container', context).forEach(function(container) {
+        initializeMapContainer($(container));
       });
     }
   };
-  
+
   /**
-   * Initialize markers in view mode (not draggable).
+   * Initialize the entire map container
    */
-  function initViewMarkers(context) {
-    // Get all view-mode markers in this context
-    const $markers = $(context).find('.draggable-mapper-entity--view-mode-default .dme-marker');
+  function initializeMapContainer($container) {
+    // Find all markers within this container
+    const $markers = $container.find('.dme-marker');
     
-    if ($markers.length === 0) {
+    // Initialize markers with descriptions
+    $markers.filter('[data-has-description="true"]').each(function() {
+      initializeModalForMarker($(this));
+    });
+    
+    // Initialize other markers
+    $markers.not('[data-has-description="true"]').each(function() {
+      initializeMarkerClickBehavior($(this));
+    });
+  }
+
+  /**
+   * Initialize modal functionality for a marker.
+   */
+  function initializeModalForMarker($marker) {
+    const markerId = $marker.attr('data-marker-id');
+    const $modal = $('#dme-marker-modal-' + markerId);
+    
+    if ($modal.length === 0) {
+      console.error('Modal not found for marker ID:', markerId);
       return;
     }
     
-    // Initialize each marker
-    $markers.each(function() {
-      const $marker = $(this);
-      // Add hover interactions for tooltips if description exists
-      if ($marker.find('.dme-marker-description').length > 0) {
-        initializeTooltipBehavior($marker);
-      }
-      
-      // Add click interactions for showing more details
-      initializeMarkerClickBehavior($marker);
-    });
-  }
-  
-  /**
-   * Initialize tooltip behavior for markers with descriptions.
-   */
-  function initializeTooltipBehavior($marker) {
-    const $description = $marker.find('.dme-marker-description');
-    
-    // Initially hide the description
-    $description.hide();
-    
-    // Show description on hover
-    $marker.on('mouseenter', function() {
-      $description.fadeIn(200);
-    });
-    
-    // Hide description when mouse leaves
-    $marker.on('mouseleave', function() {
-      $description.fadeOut(200);
-    });
-  }
-  
-  /**
-   * Initialize click behavior for markers.
-   */
-  function initializeMarkerClickBehavior($marker) {
-    // Add click event to show more detailed information if needed
+    // Add click handler to open modal
     $marker.on('click', function(e) {
       e.preventDefault();
+      e.stopPropagation();
       
-      // Toggle active state for the marker
-      $marker.toggleClass('dme-marker--active');
+      // Close any open modals
+      $('.dme-marker-modal').hide();
       
-      // If you have a more detailed view to show (like a modal), you can trigger it here
-      // For example:
-      // const markerId = $marker.attr('id');
-      // showMarkerDetailModal(markerId);
+      // Show the modal
+      $modal.show();
+      
+      // Add keyboard event listener for escape key
+      $(document).on('keydown.dme-modal', function(e) {
+        if (e.key === 'Escape') {
+          closeAllModals();
+        }
+      });
+      
+      console.log('Modal opened for marker ID:', markerId);
+    });
+    
+    // Add close button handler
+    $modal.find('.dme-modal-close').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeAllModals();
+    });
+    
+    // Close when clicking outside the modal
+    $(document).on('click.dme-modal-outside', function(e) {
+      if (!$(e.target).closest('.dme-marker-modal').length && 
+          !$(e.target).closest('.dme-marker').length) {
+        closeAllModals();
+      }
     });
   }
   
+  /**
+   * Close all modals and remove event listeners
+   */
+  function closeAllModals() {
+    $('.dme-marker-modal').hide();
+    $(document).off('keydown.dme-modal');
+    $(document).off('click.dme-modal-outside');
+  }
+  
+  /**
+   * Initialize click behavior for markers without modals
+   */
+  function initializeMarkerClickBehavior($marker) {
+    $marker.on('click', function(e) {
+      e.preventDefault();
+      // Toggle active state for the marker
+      $marker.toggleClass('dme-marker--active');
+    });
+  }
+
 })(jQuery, Drupal, drupalSettings, once);

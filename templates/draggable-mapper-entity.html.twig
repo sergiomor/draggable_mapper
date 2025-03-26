@@ -29,23 +29,37 @@
   {% if content %}
     {% if map_image_url %}
       <div class="dme-container">
-        <div class="dme-image-wrapper">
-          <img src="{{ map_image_url }}" alt="{{ draggable_mapper_entity.label }}" class="dme-map-image" />
+        <div class="dme-container-wrapper">
+          <div class="dme-image">
+            <img src="{{ map_image_url }}" alt="{{ draggable_mapper_entity.label }}" class="dme-map-image" />
+          </div>
           
           {% if markers %}
             {% for marker in markers %}
-              <div class="dme-marker dme-mapped-marker" style="left: {{ marker.x }}%; top: {{ marker.y }}%;" 
-                   {% if marker.title %}title="{{ marker.title }}"{% endif %}>
-                {% if marker.icon_url %}
-                  <img src="{{ marker.icon_url }}" alt="{{ marker.title|default('Marker') }}" />
-                {% else %}
-                  <div class="dme-marker-default">{{ marker.title }}</div>
-                {% endif %}
-                
-                {% if marker.description %}
-                  <div class="dme-marker-tooltip">{{ marker.description }}</div>
-                {% endif %}
+              <div class="dme-marker dme-mapped-marker{% if marker.icon_url %} dme-marker-icon{% endif %}" style="left: {{ marker.x }}%; top: {{ marker.y }}%;"
+                    {% if marker.title %}title="{{ marker.title }}"{% endif %}
+                    {% if marker.description %}data-has-description="true" data-marker-id="{{ loop.index }}"{% endif %}>
+                <div class="dme-marker-wrapper">
+                  {% if marker.icon_url %}
+                    <img src="{{ marker.icon_url }}" alt="{{ marker.title|default('Marker') }}" />
+                  {% else %}
+                    {{ marker.title }}
+                  {% endif %}
+                </div>
               </div>
+            {% endfor %}
+            
+            {# Render all modals outside the marker loop #}
+            {% for marker in markers %}
+              {% if marker.description %}
+                <div id="dme-marker-modal-{{ loop.index }}" class="dme-marker-modal" style="display: none;">
+                  <div class="dme-modal-content">
+                    <span class="dme-modal-close">&times;</span>
+                    <h3>{{ marker.title }}</h3>
+                    <div class="dme-modal-body">{{ marker.description }}</div>
+                  </div>
+                </div>
+              {% endif %}
             {% endfor %}
           {% endif %}
         </div>

@@ -48,6 +48,12 @@
         initializeExistingMarkerIcons();
       });
 
+      // Set initial height for unmapped markers
+      setUnmappedMarkerHeight();
+
+      // Update marker heights when window is resized
+$(window).on('resize', setUnmappedMarkerHeight);
+
       // Process marker title fields
       once('marker-title-handler', '.field--name-field-dme-marker-title input[type="text"]', context).forEach(function(titleInput) {
         // Initialize the marker with current value or default
@@ -121,7 +127,7 @@
       // Check if this paragraph already has an icon uploaded or if marker already has an icon
       var hasUploadedFile = $paragraphItem.find('.field--name-field-dme-marker-icon .file').length > 0;
       var $marker = $('#dme-marker-' + delta);
-      var hasIconClass = $marker.length && $marker.hasClass('has-icon');
+      var hasIconClass = $marker.length && $marker.hasClass('dme-marker-icon');
       
       // If there's an uploaded file or the marker already has an icon class, don't update with the title
       if (hasUploadedFile || hasIconClass) {
@@ -136,13 +142,25 @@
         ensureMarkerExists(delta, displayTitle);
         // Mark it explicitly as a title marker
         $('#dme-marker-' + delta).addClass('has-title');
-      } else if (!$marker.hasClass('has-icon')) {
+      } else if (!$marker.hasClass('dme-marker-icon')) {
         // Update the title if it's not an icon marker
         $marker.find('.dme-marker-wrapper').text(displayTitle);
         $marker.addClass('has-title');
       }
     }
   }
+
+  /**
+ * Set the height of unmapped markers to equal to mapped markers
+ */
+  function setUnmappedMarkerHeight() {
+    var $containerWrapper = $('.dme-container-wrapper');
+    if ($containerWrapper.length) {
+      var containerHeight = $containerWrapper.height();
+      var markerHeight = containerHeight * 0.1; // 10% of container height
+      $('.dme-unmapped-marker, .dme-no-markers-message').css('height', markerHeight + 'px');
+    }
+  } 
  
   /**
    * Updates a marker icon based on the file input.
@@ -177,14 +195,14 @@
         // Then add only the image
         $wrapper.html('<img src="' + e.target.result + '" alt="Marker Icon" />');
         // Add a class to indicate this marker has an icon
-        $marker.addClass('has-icon').removeClass('has-title');
+        $marker.addClass('dme-marker-icon').removeClass('has-title');
       } else {
         // We need to create the marker first
         ensureMarkerExists(delta, '');
         // Now update it with the icon
         var $newMarker = $('#dme-marker-' + delta);
         $newMarker.find('.dme-marker-wrapper').empty().html('<img src="' + e.target.result + '" alt="Marker Icon" />');
-        $newMarker.addClass('has-icon').removeClass('has-title');
+        $newMarker.addClass('dme-marker-icon').removeClass('has-title');
 
       }
     };
@@ -288,7 +306,7 @@
    */
   function checkAndUpdateMarkers() {
     // Find all markers and check which ones need to revert to text
-    $('.dme-marker.has-icon').each(function() {
+    $('.dme-marker.dme-marker-icon').each(function() {
       var markerId = $(this).attr('id');
       if (!markerId) return;
       
@@ -320,7 +338,7 @@
             $wrapper.text(title || 'Marker ' + delta);
             
             // Update classes
-            $('#dme-marker-' + delta).removeClass('has-icon').addClass('has-title');
+            $('#dme-marker-' + delta).removeClass('dme-marker-icon').addClass('has-text');
           }
           
           return false; // Break the loop after finding the matching paragraph
@@ -333,15 +351,25 @@
    * Initialize draggability for marker elements
    */
   function initDraggableMarkers(context) {
-    // Only make markers draggable if we're in a form context
-/*     if (!$('.draggable-mapper-entity-edit-form, .draggable-mapper-entity-add-form').length) {
-      return;
-    }
-     */
     // Get all markers and make them draggable
     once('draggable', '.dme-marker', context).forEach(function(marker) {
+      var $marker = $(marker);
       $(marker).draggable({
-        helper: 'clone', // Create a clone for dragging to make transitions smoother
+        // Create a clone for dragging to make transitions smoother
+        helper: function() {
+          // Create a clone that maintains fixed dimensions
+          var $clone = $(this).clone();
+          var currentWidth = $(this).outerWidth();
+          var currentHeight = $(this).outerHeight();
+          
+          // Force the helper to maintain the current marker dimensions
+          $clone.css({
+            'width': currentWidth,
+            'height': currentHeight
+          });
+          
+          return $clone;
+        },
         appendTo: 'body', // Attach the helper to the body to avoid containment issues during drag
         zIndex: 1000, // Ensure the dragged item appears above other elements
         opacity: 0.7, // Slightly transparent while dragging
@@ -365,9 +393,9 @@
           
           if (containerOffset && 
               ui.position.left >= containerOffset.left && 
-              ui.position.left <= containerOffset.left + $container.width() &&
+              ui.position.right <= containerOffset.left + $container.width() &&
               ui.position.top >= containerOffset.top && 
-              ui.position.top <= containerOffset.top + $container.height()) {
+              ui.position.bottom <= containerOffset.top + $container.height()) {
             // Add a visual indicator that we're over the drop target
             $container.addClass('dme-drop-hover');
           } else {
@@ -388,11 +416,17 @@
           
           // Check if we've dropped on the target container
           var containerOffset = $container.offset();
+          var markerWidth = $(ui.helper).outerWidth();
+          var markerHeight = $(ui.helper).outerHeight();
+          
+          // Calculate right and bottom edges
+          var markerRight = ui.position.left + markerWidth;
+          var markerBottom = ui.position.top + markerHeight;
           if (containerOffset && 
-              ui.offset.left >= containerOffset.left && 
-              ui.offset.left <= containerOffset.left + $container.width() &&
-              ui.offset.top >= containerOffset.top && 
-              ui.offset.top <= containerOffset.top + $container.height()) {
+            ui.position.left >= containerOffset.left && 
+            markerRight <= containerOffset.left + $container.width() &&
+            ui.position.top >= containerOffset.top && 
+            markerBottom <= containerOffset.top + $container.height()) {
             
             // Calculate position within the target container
             var relativeX = ui.offset.left - containerOffset.left;
@@ -404,10 +438,7 @@
               position: 'absolute',
               left: relativeX + 'px',
               top: relativeY + 'px'
-            });
-            
-
-            // condider the center of element to determine the position
+            });        
             
             // Calculate position as percentage of container size for responsive behavior
             var containerWidth = $container.width();
@@ -469,7 +500,8 @@
         var $message = $('<div class="dme-no-markers-message" style="display: none;">' + 
                       Drupal.t('Add new markers to be mapped') + '</div>');
         $unmappedContainer.append($message);
-        $message.fadeIn(400); // Fade in over 400ms
+        $message.fadeIn(400);
+        setUnmappedMarkerHeight();
       }
     }
   }
@@ -494,9 +526,14 @@
       if (delta === null) {
         return;
       }
-      
-      // Find the image source
+    
+      // Find the image source - look for img or a.href for file URLs
       var imgSrc = $(this).find('img').attr('src');
+      if (!imgSrc) {
+        // Try finding href in case it's a file link
+        imgSrc = $(this).find('a').attr('href');
+      }
+
       if (!imgSrc) {
         return;
       }
@@ -510,14 +547,14 @@
         // Then add only the image
         $wrapper.html('<img src="' + imgSrc + '" alt="Marker Icon" />');
         // Add a class to indicate this marker has an icon
-        $marker.addClass('has-icon').removeClass('has-title');
+        $marker.addClass('dme-marker-icon').removeClass('has-title');
       } else {
         // We need to create the marker first
         ensureMarkerExists(delta, '');
         // Now update it with the icon
         var $newMarker = $('#dme-marker-' + delta);
         $newMarker.find('.dme-marker-wrapper').empty().html('<img src="' + imgSrc + '" alt="Marker Icon" />');
-        $newMarker.addClass('has-icon').removeClass('has-title');
+        $newMarker.addClass('dme-marker-icon').removeClass('has-title');
       }
     });
     

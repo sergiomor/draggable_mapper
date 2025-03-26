@@ -40,18 +40,24 @@
 }
 
 .dme-marker {
-  padding: 5px 10px;
   cursor: move;
   border: 1px solid #ccc; 
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-  width: fit-content;
-  height: fit-content;
+  width: 10%;
+  height: 10%;
   user-select: none;
-}
+  display: flex;
+  justify-content: center;
+  align-items: center; s
+} 
 
+.dme-marker-icon {
+  width: 5%;
+  height: auto;
+}
 .dme-mapped-marker {
   position: absolute;
   z-index: 10;
@@ -62,11 +68,13 @@
 }
 
 .dme-no-markers-message {
-  padding: 8px;
+  padding: 6px;
   font-style: italic;
   color: #666;
-  text-align: center;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .dme-marker:hover {
@@ -76,24 +84,23 @@
 
 .dme-marker.dragging {
   opacity: 0.8;
-  z-index: 20; /* Ensure dragged item is on top */
-  transform: scale(1.05);
+  z-index: 20;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
-.dme-marker-wrapper {
-  font-size: 12px;
+ .dme-marker-wrapper {
+  font-size: 0.75em;
+  padding: 5%;
   font-weight: bold;
-  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100px;
+  max-width: 80%;
 }
 
 .dme-marker img {
-  max-width: 30px;
-  max-height: 30px;
+  max-width: 100%;
+  height: auto;
   display: block;
   margin: 0 auto;
 }
@@ -131,13 +138,6 @@
   animation: marker-update 0.5s ease-in-out;
 }
 
-/* Loading indicator */
-.dme-loading {
-  padding: 10px;
-  font-style: italic;
-  color: #666;
-}
-
 /* Accessibility enhancements */
 .visually-hidden {
   position: absolute;
@@ -148,11 +148,4 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
-}
-
-/* Feedback when marker is actively being positioned */
-.dme-marker:focus,
-.dme-marker:focus-within {
-  outline: 2px solid #36c;
-  outline-offset: 2px;
 }

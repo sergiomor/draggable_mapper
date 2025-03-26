@@ -21,7 +21,7 @@ class DraggableMapperEntityForm extends ContentEntityForm {
     $form['#entity_type'] = 'draggable_mapper_entity';
     
     // Attach the mapper library
-    $form['#attached']['library'][] = 'draggable_mapper_entity/mapper';
+    $form['#attached']['library'][] = 'draggable_mapper_entity/draggable_mapper.form';
     
     // Add the preview container using the same helper function as the inline entity form
     module_load_include('module', 'draggable_mapper_entity');

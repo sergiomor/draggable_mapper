@@ -5,32 +5,17 @@
 .dme-container {
   position: relative;
   margin: 20px 0;
-  border: 1px solid #ccc;
   padding: 15px;
   clear: both;
-}
-
-.dme-unmapped-wrapper {
-  position: relative;
-  border: 1px solid #ccc; 
   max-width: 100%;
-  margin: 10px 0;
-  padding: 5px;
-  display: flex;
-  flex-wrap: wrap;
+  position: relative;
+  margin: 0 auto;
 }
-
 .dme-container-wrapper {
   position: relative;
   display: block;
   border: 1px solid #ccc; 
   max-width: 100%;
-}
-
-.dme-image {
-  position: relative;
-  max-width: 100%;
-  min-height: 100px; 
 }
 
 .dme-image img {
@@ -39,17 +24,28 @@
   display: block;
 }
 
+/* Base marker styles - using relative units based on image wrapper */
 .dme-marker {
-  padding: 5px 10px;
   cursor: pointer;
   border: 1px solid #ccc; 
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-  width: fit-content;
-  height: fit-content;
+  width: 10%;
+  height: 10%;
   user-select: none;
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+}
+
+.dme-marker-icon {
+  width: 5%;
+  height: auto;
 }
 
 .dme-mapped-marker {
@@ -60,22 +56,57 @@
 .dme-marker:hover {
   background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.dme-marker-wrapper {
-  font-size: 12px;
-  font-weight: bold;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100px;
+  z-index: 11;
 }
 
 .dme-marker img {
-  max-width: 30px;
-  max-height: 30px;
+  max-width: 100%;
+  height: auto;
   display: block;
-  margin: 0 auto;
 }
 
+.dme-marker-wrapper {
+  font-size: 0.75em;
+  padding: 5%;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80%;
+}
+
+/* Modal styling */
+.dme-marker-modal {
+  position: fixed;
+  z-index: 12;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: none;
+  font-family: Arial, sans-serif;
+  width: 80vw;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.dme-modal-content {
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dme-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.dme-modal-close:hover {
+  color: #000;
+}
