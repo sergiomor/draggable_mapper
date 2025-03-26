@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\draggable_mapper_entity\Form;
+namespace Drupal\draggable_mapper\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Form controller for the draggable mapper entity forms.
  */
-class DraggableMapperEntityForm extends ContentEntityForm {
+class DraggableMapperForm extends ContentEntityForm {
 
   /**
    * {@inheritdoc}
@@ -18,14 +18,14 @@ class DraggableMapperEntityForm extends ContentEntityForm {
     
     // Set the entity as a form property to match the structure expected by mapper.js
     $form['#entity'] = $this->entity;
-    $form['#entity_type'] = 'draggable_mapper_entity';
+    $form['#entity_type'] = 'draggable_mapper';
     
     // Attach the mapper library
-    $form['#attached']['library'][] = 'draggable_mapper_entity/draggable_mapper.form';
+    $form['#attached']['library'][] = 'draggable_mapper/draggable_mapper.form';
     
     // Add the preview container using the same helper function as the inline entity form
-    module_load_include('module', 'draggable_mapper_entity');
-    _draggable_mapper_entity_add_preview_container($form, $form_state);
+    module_load_include('module', 'draggable_mapper');
+    _draggable_mapper_add_preview_container($form, $form_state);
     
     return $form;
   }
@@ -41,7 +41,7 @@ class DraggableMapperEntityForm extends ContentEntityForm {
       '%label' => $entity->label(),
     ]));
     
-    $form_state->setRedirect('entity.draggable_mapper_entity.collection');
+    $form_state->setRedirect('entity.draggable_mapper.collection');
     
     return $result;
   }

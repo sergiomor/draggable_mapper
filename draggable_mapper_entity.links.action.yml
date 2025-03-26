@@ -1,5 +1,0 @@
-draggable_mapper_entity.add_form:
-  route_name: entity.draggable_mapper_entity.add_form
-  title: 'Add Draggable Mapper'
-  appears_on:
-    - entity.draggable_mapper_entity.collection

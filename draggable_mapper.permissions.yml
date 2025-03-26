@@ -1,0 +1,20 @@
+administer draggable mapper:
+  title: 'Administer Draggable Mapper settings'
+  description: 'Allow to access the administration form to configure Draggable Mapper.'
+  restrict access: true
+
+add draggable mapper:
+  title: 'Create new Draggable Mapper'
+  description: 'Allow users to create new Draggable Mapper content.'
+
+view draggable mapper:
+  title: 'View Draggable Mapper'
+  description: 'Allow users to view Draggable Mapper content.'
+
+edit draggable mapper:
+  title: 'Edit Draggable Mapper'
+  description: 'Allow users to edit Draggable Mapper content.'
+
+delete draggable mapper:
+  title: 'Delete Draggable Mapper'
+  description: 'Allow users to delete Draggable Mapper content.'

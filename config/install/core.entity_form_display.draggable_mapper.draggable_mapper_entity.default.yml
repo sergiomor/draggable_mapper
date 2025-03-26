@@ -2,15 +2,15 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.draggable_mapper_entity.draggable_mapper_entity.field_dme_image
-    - field.field.draggable_mapper_entity.draggable_mapper_entity.field_dme_marker
+    - field.field.draggable_mapper.draggable_mapper.field_dme_image
+    - field.field.draggable_mapper.draggable_mapper.field_dme_marker
   module:
-    - draggable_mapper_entity
+    - draggable_mapper
     - image
     - paragraphs
-id: draggable_mapper_entity.draggable_mapper_entity.default
-targetEntityType: draggable_mapper_entity
-bundle: draggable_mapper_entity
+id: draggable_mapper.draggable_mapper.default
+targetEntityType: draggable_mapper
+bundle: draggable_mapper
 mode: default
 content:
   field_dme_image:

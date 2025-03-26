@@ -1,0 +1,6 @@
+draggable_mapper.collection:
+  title: 'Draggable Mapper'
+  description: 'Create and manage draggable mappers.'
+  route_name: entity.draggable_mapper.collection
+  parent: system.admin_structure
+  weight: 99

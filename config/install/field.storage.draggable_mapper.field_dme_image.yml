@@ -2,12 +2,12 @@ langcode: en
 status: true
 dependencies:
   module:
-    - draggable_mapper_entity
+    - draggable_mapper
     - file
     - image
-id: draggable_mapper_entity.field_dme_image
+id: draggable_mapper.field_dme_image
 field_name: field_dme_image
-entity_type: draggable_mapper_entity
+entity_type: draggable_mapper
 type: image
 settings:
   target_type: file

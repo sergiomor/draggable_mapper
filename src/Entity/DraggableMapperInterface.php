@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\draggable_mapper_entity\Entity;
+namespace Drupal\draggable_mapper\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
@@ -9,7 +9,7 @@ use Drupal\user\EntityOwnerInterface;
 /**
  * Provides an interface for draggable mapper entity.
  */
-interface DraggableMapperEntityInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
+interface DraggableMapperInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
   /**
    * Gets the draggable mapper entity name.
@@ -25,7 +25,7 @@ interface DraggableMapperEntityInterface extends ContentEntityInterface, EntityC
    * @param string $name
    *   The draggable mapper entity name.
    *
-   * @return \Drupal\draggable_mapper_entity\Entity\DraggableMapperEntityInterface
+   * @return \Drupal\draggable_mapper\Entity\DraggableMapperInterface
    *   The called draggable mapper entity entity.
    */
   public function setName($name);
@@ -44,7 +44,7 @@ interface DraggableMapperEntityInterface extends ContentEntityInterface, EntityC
    * @param int $timestamp
    *   The draggable mapper entity creation timestamp.
    *
-   * @return \Drupal\draggable_mapper_entity\Entity\DraggableMapperEntityInterface
+   * @return \Drupal\draggable_mapper\Entity\DraggableMapperInterface
    *   The called draggable mapper entity entity.
    */
   public function setCreatedTime($timestamp);

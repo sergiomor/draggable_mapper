@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains draggable_mapper_entity.module.
+ * Contains draggable_mapper.module.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -14,14 +14,14 @@ use Drupal\Core\Render\Element;
 /**
  * Implements hook_help().
  */
-function draggable_mapper_entity_help($route_name, RouteMatchInterface $route_match) {
+function draggable_mapper_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-    case 'help.page.draggable_mapper_entity':
+    case 'help.page.draggable_mapper':
       $output = '';
       $output .= '<h3>' . \Drupal::translation()->translate('About') . '</h3>';
-      $output .= '<p>' . \Drupal::translation()->translate('The Draggable Mapper Entity module provides a custom entity type for creating maps with draggable markers.') . '</p>';
+      $output .= '<p>' . \Drupal::translation()->translate('The Draggable Mapper module provides a custom entity type for creating maps with draggable markers.') . '</p>';
       return $output;
-    case 'entity.draggable_mapper_entity.collection':
+    case 'entity.draggable_mapper.collection':
       return '<p>' . \Drupal::translation()->translate('Draggable Mappers allow you to create interactive maps with draggable markers. Each mapper consists of a background image and one or more markers that can be positioned on the image.') . '</p>';
   }
 }
@@ -29,29 +29,29 @@ function draggable_mapper_entity_help($route_name, RouteMatchInterface $route_ma
 /**
  * Implements hook_theme().
  */
-function draggable_mapper_entity_theme($existing, $type, $theme, $path) {
+function draggable_mapper_theme($existing, $type, $theme, $path) {
   return [
-    'draggable_mapper_entity' => [
+    'draggable_mapper' => [
       'render element' => 'elements',
-      'template' => 'draggable-mapper-entity',
+      'template' => 'draggable-mapper',
     ],
   ];
 }
 
 /**
- * Prepares variables for draggable mapper entity templates.
+ * Prepares variables for Draggable Mapper templates.
  *
- * Default template: draggable-mapper-entity.html.twig.
+ * Default template: draggable-mapper.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
  *   - elements: An associative array containing rendered fields.
  *   - attributes: HTML attributes for the containing element.
  */
-function template_preprocess_draggable_mapper_entity(array &$variables) {
-  /** @var \Drupal\draggable_mapper_entity\Entity\DraggableMapperEntity $entity */
-  $entity = $variables['elements']['#draggable_mapper_entity'];
-  $variables['draggable_mapper_entity'] = $entity;
+function template_preprocess_draggable_mapper(array &$variables) {
+  /** @var \Drupal\draggable_mapper\Entity\DraggableMapperEntity $entity */
+  $entity = $variables['elements']['#draggable_mapper'];
+  $variables['draggable_mapper'] = $entity;
   
   // Add the entity title explicitly
   $variables['title'] = $entity->label();
@@ -60,12 +60,12 @@ function template_preprocess_draggable_mapper_entity(array &$variables) {
   $variables['label'] = $entity->label();
   
   // Add the entity ID and bundle as classes
-  $variables['attributes']['class'][] = 'draggable-mapper-entity';
-  $variables['attributes']['class'][] = 'draggable-mapper-entity--id-' . $entity->id();
+  $variables['attributes']['class'][] = 'draggable-mapper';
+  $variables['attributes']['class'][] = 'draggable-mapper--id-' . $entity->id();
   
   // Add view mode class
   $variables['view_mode'] = $variables['elements']['#view_mode'];
-  $variables['attributes']['class'][] = 'draggable-mapper-entity--view-mode-' . $variables['view_mode'];
+  $variables['attributes']['class'][] = 'draggable-mapper--view-mode-' . $variables['view_mode'];
   
   // Process the content
   $variables['content'] = [];
@@ -134,13 +134,13 @@ function template_preprocess_draggable_mapper_entity(array &$variables) {
   }
   
   // Add library for viewing
-  $variables['#attached']['library'][] = 'draggable_mapper_entity/draggable_mapper.view';
+  $variables['#attached']['library'][] = 'draggable_mapper/draggable_mapper.view';
 }
 
 /**
  * Implements hook_entity_form_display_alter().
  */
-function draggable_mapper_entity_entity_form_display_alter(&$form_display, $context) {
+function draggable_mapper_form_display_alter(&$form_display, $context) {
   // Only act on paragraph entities of dme_marker bundle
   if ($context['entity_type'] == 'paragraph' && $context['bundle'] == 'dme_marker') {
     // Hide the x and y coordinate fields
@@ -164,21 +164,21 @@ function draggable_mapper_entity_entity_form_display_alter(&$form_display, $cont
 /**
  * Implements hook_inline_entity_form_entity_form_alter().
  */
-function draggable_mapper_entity_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
-  // Only act on draggable_mapper_entity
-  if ($entity_form['#entity_type'] != 'draggable_mapper_entity') {
+function draggable_mapper_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+  // Only act on draggable_mapper
+  if ($entity_form['#entity_type'] != 'draggable_mapper') {
     return;
   }
   // Add the library
-  $entity_form['#attached']['library'][] = 'draggable_mapper_entity/draggable_mapper.form';
+  $entity_form['#attached']['library'][] = 'draggable_mapper/draggable_mapper.form';
   // Add the preview container
-  _draggable_mapper_entity_add_preview_container($entity_form, $form_state);
+  _draggable_mapper_add_preview_container($entity_form, $form_state);
 }
 
 /**
  * Helper function to add the preview container to a form.
  */
-function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NULL) {
+function _draggable_mapper_add_preview_container(&$form, $form_state = NULL) {
  
   // Set coordinates fields to hidden
   if (isset($form['field_dme_marker']) && isset($form['field_dme_marker']['widget'])) {
@@ -224,7 +224,7 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
 
   // Get image file URL if available
   $image_url = '';
-  $image_fid = _draggable_mapper_entity_get_image_fid($form, $form_state, 'field_dme_image');
+  $image_fid = _draggable_mapper_get_image_fid($form, $form_state, 'field_dme_image');
   
   // If we have a file ID, load the file and get URL
   if ($image_fid) {
@@ -301,7 +301,7 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
   ];
 
 
-  $markers = _draggable_mapper_entity_get_marker_data($form, $form_state, 'field_dme_marker');
+  $markers = _draggable_mapper_get_marker_data($form, $form_state, 'field_dme_marker');
 
   // Add a fallback message when there are no markers at all or no unmapped markers
   if (empty($markers) || empty(array_filter($markers, function($marker) { return $marker['x'] === NULL || $marker['y'] === NULL; }))) {
@@ -430,7 +430,7 @@ function _draggable_mapper_entity_add_preview_container(&$form, $form_state = NU
  * @return int|null
  *   The file ID if found, NULL otherwise.
  */
-function _draggable_mapper_entity_get_image_fid($form, $form_state, $field_name = 'field_dme_image') {
+function _draggable_mapper_get_image_fid($form, $form_state, $field_name = 'field_dme_image') {
   $image_fid = NULL;
 
   // If the triggering element is from AJAX upload, get directly from it
@@ -498,7 +498,7 @@ function _draggable_mapper_entity_get_image_fid($form, $form_state, $field_name 
  *   - x: The X coordinate of the marker (if it exists), NULL otherwise
  *   - y: The Y coordinate of the marker (if it exists), NULL otherwise
  */
-function _draggable_mapper_entity_get_marker_data($form, $form_state, $field_name = 'field_dme_marker') {
+function _draggable_mapper_get_marker_data($form, $form_state, $field_name = 'field_dme_marker') {
   $markers = [];
   $entity_ids = [];
   

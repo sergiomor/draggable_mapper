@@ -1,17 +1,17 @@
 {#
 /**
  * @file
- * Theme implementation to display a Draggable Mapper Entity.
+ * Theme implementation to display a Draggable Mapper.
  *
  * Available variables:
- * - draggable_mapper_entity: The Draggable Mapper Entity entity.
+ * - draggable_mapper: The Draggable Mapper.
  * - map_image_url: URL to the map image.
  * - markers: Array of marker data with coordinates and optional titles/descriptions.
  * - content: All items for this entity.
  * - title: The title of the entity.
  * - view_mode: The view mode of the entity.
  *
- * @see template_preprocess_draggable_mapper_entity()
+ * @see template_preprocess_draggable_mapper()
  *
  * @ingroup themeable
  */
@@ -31,7 +31,7 @@
       <div class="dme-container">
         <div class="dme-container-wrapper">
           <div class="dme-image">
-            <img src="{{ map_image_url }}" alt="{{ draggable_mapper_entity.label }}" class="dme-map-image" />
+            <img src="{{ map_image_url }}" alt="{{ draggable_mapper.label }}" class="dme-map-image" />
           </div>
           
           {% if markers %}

@@ -2,14 +2,14 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.draggable_mapper_entity.field_dme_image
+    - field.storage.draggable_mapper.field_dme_image
   module:
-    - draggable_mapper_entity
+    - draggable_mapper
     - image
-id: draggable_mapper_entity.draggable_mapper_entity.field_dme_image
+id: draggable_mapper.draggable_mapper.field_dme_image
 field_name: field_dme_image
-entity_type: draggable_mapper_entity
-bundle: draggable_mapper_entity
+entity_type: draggable_mapper
+bundle: draggable_mapper
 label: 'Map Image'
 description: 'Upload an image to use as the map background.'
 required: true
@@ -19,7 +19,7 @@ default_value_callback: ''
 settings:
   handler: 'default:file'
   handler_settings: {  }
-  file_directory: 'draggable_mapper_entity/maps'
+  file_directory: 'draggable_mapper/maps'
   file_extensions: 'png jpg jpeg gif svg'
   max_filesize: ''
   max_resolution: ''

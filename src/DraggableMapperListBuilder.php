@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\draggable_mapper_entity;
+namespace Drupal\draggable_mapper;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
@@ -9,7 +9,7 @@ use Drupal\Core\Link;
 /**
  * Defines a class to build a listing of Draggable Map entities.
  */
-class DraggableMapperEntityListBuilder extends EntityListBuilder {
+class DraggableMapperListBuilder extends EntityListBuilder {
 
   /**
    * {@inheritdoc}
@@ -24,12 +24,12 @@ class DraggableMapperEntityListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /** @var \Drupal\draggable_mapper_entity\Entity\DraggableMapEntity $entity */
+    /** @var \Drupal\draggable_mapper\Entity\DraggableMapEntity $entity */
     $row['id'] = $entity->id();
     $row['name'] = Link::createFromRoute(
       $entity->label(),
-      'entity.draggable_mapper_entity.canonical',
-      ['draggable_mapper_entity' => $entity->id()]
+      'entity.draggable_mapper.canonical',
+      ['draggable_mapper' => $entity->id()]
     );
     return $row + parent::buildRow($entity);
   }
