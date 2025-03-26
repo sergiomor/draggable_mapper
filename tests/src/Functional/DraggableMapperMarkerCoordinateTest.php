@@ -1,0 +1,310 @@
+<?php
+
+namespace Drupal\Tests\draggable_mapper\Functional;
+
+use Drupal\Tests\BrowserTestBase;
+use Drupal\Tests\TestFileCreationTrait;
+
+/**
+ * Tests the marker coordinate functionality of Draggable Mapper entities.
+ *
+ * @group draggable_mapper
+ */
+class DraggableMapperMarkerCoordinateTest extends BrowserTestBase {
+
+  use TestFileCreationTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  protected static $modules = [
+    'draggable_mapper',
+    'field',
+    'file',
+    'image',
+    'user',
+    'paragraphs',
+    'inline_entity_form',
+    'text',
+  ];
+
+  /**
+   * A user with permission to administer draggable mapper entities.
+   *
+   * @var \Drupal\user\UserInterface
+   */
+  protected $adminUser;
+
+  /**
+   * The entity created during the test.
+   *
+   * @var int
+   */
+  protected $entityId;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    // Create test user with appropriate permissions.
+    $this->adminUser = $this->drupalCreateUser([
+      'administer draggable mapper settings',
+      'create new draggable mapper',
+      'edit draggable mapper',
+      'delete draggable mapper',
+    ]);
+    $this->drupalLogin($this->adminUser);
+
+    // Create a test entity with an image for later tests.
+    $this->createMapEntityWithImage();
+  }
+
+  /**
+   * Creates a map entity with an image for testing.
+   */
+  protected function createMapEntityWithImage() {
+    // Navigate to the add form.
+    $this->drupalGet('admin/structure/draggable_mapper/add');
+    
+    // Prepare a test image.
+    $image = current($this->getTestFiles('image'));
+    $image_path = $this->container->get('file_system')->realpath($image->uri);
+
+    // Submit the form with minimal values.
+    $edit = [
+      'name[0][value]' => 'Coordinate Test Map',
+      'status[value]' => 1,
+      'files[field_dme_image_0]' => $image_path,
+    ];
+    $this->submitForm($edit, 'Save');
+
+    // Store the entity ID from the URL for later use.
+    $url_parts = explode('/', $this->getUrl());
+    $this->entityId = end($url_parts);
+  }
+
+  /**
+   * Tests marker coordinate storage and validation.
+   */
+  public function testMarkerCoordinateStorage() {
+    // Navigate to edit the existing entity.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
+    
+    // Add a marker with valid coordinates.
+    $this->submitForm([], 'Add Marker');
+    
+    // Define valid coordinates within the 0-1 range.
+    $edit = [
+      'field_dme_marker[0][subform][field_dme_marker_title][0][value]' => 'Valid Coordinate Marker',
+      'field_dme_marker[0][subform][field_dme_marker_description][0][value]' => 'This is a marker with valid coordinates.',
+      'field_dme_marker[0][subform][field_dme_marker_x][0][value]' => '0.25',
+      'field_dme_marker[0][subform][field_dme_marker_y][0][value]' => '0.75',
+    ];
+    $this->submitForm($edit, 'Save');
+    
+    // Verify the entity was saved properly.
+    $this->assertSession()->pageTextContains('has been updated');
+    
+    // Check that the coordinates were stored correctly.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
+    $this->assertSession()->fieldValueEquals('field_dme_marker[0][subform][field_dme_marker_x][0][value]', '0.25');
+    $this->assertSession()->fieldValueEquals('field_dme_marker[0][subform][field_dme_marker_y][0][value]', '0.75');
+    
+    // Test invalid coordinates (out of the 0-1 range)
+    $edit = [
+      'field_dme_marker[0][subform][field_dme_marker_x][0][value]' => '1.5',
+      'field_dme_marker[0][subform][field_dme_marker_y][0][value]' => '-0.2',
+    ];
+    $this->submitForm($edit, 'Save');
+    
+    // Assuming the module validates coordinate ranges, we should see validation errors
+    // Note: If validation is not implemented, this test will fail as expected
+    $this->assertSession()->pageTextContains('Horizontal coordinate must be between 0 and 1');
+    $this->assertSession()->pageTextContains('Vertical coordinate must be between 0 and 1');
+    
+    // Test edge case - coordinates at exactly 0 and 1
+    $edit = [
+      'field_dme_marker[0][subform][field_dme_marker_x][0][value]' => '0',
+      'field_dme_marker[0][subform][field_dme_marker_y][0][value]' => '1',
+    ];
+    $this->submitForm($edit, 'Save');
+    
+    // These should be valid values at the boundary
+    $this->assertSession()->pageTextContains('has been updated');
+    
+    // Verify the boundary values were stored correctly
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
+    $this->assertSession()->fieldValueEquals('field_dme_marker[0][subform][field_dme_marker_x][0][value]', '0');
+    $this->assertSession()->fieldValueEquals('field_dme_marker[0][subform][field_dme_marker_y][0][value]', '1');
+  }
+
+  /**
+   * Tests handling of markers without coordinates.
+   */
+  public function testMarkersWithoutCoordinates() {
+    // Navigate to edit the existing entity.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
+    
+    // Add a marker without coordinates.
+    $this->submitForm([], 'Add Marker');
+    
+    // Fill in marker information but leave coordinates empty.
+    $edit = [
+      'field_dme_marker[0][subform][field_dme_marker_title][0][value]' => 'No Coordinate Marker',
+      'field_dme_marker[0][subform][field_dme_marker_description][0][value]' => 'This is a marker without coordinates.',
+      // X and Y coordinate fields are left empty
+    ];
+    $this->submitForm($edit, 'Save');
+    
+    // Verify the entity was saved properly.
+    $this->assertSession()->pageTextContains('has been updated');
+    
+    // View the entity to verify that markers without coordinates don't appear.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}");
+    
+    // The marker title should not appear in the rendered output
+    // This assumes the template_preprocess_draggable_mapper function properly filters 
+    // markers with empty coordinates.
+    $this->assertSession()->pageTextNotContains('No Coordinate Marker');
+    
+    // Add a second marker with coordinates for comparison.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
+    $this->submitForm([], 'Add Marker');
+    
+    // Fill in the second marker with coordinates.
+    $edit = [
+      'field_dme_marker[1][subform][field_dme_marker_title][0][value]' => 'Valid Marker',
+      'field_dme_marker[1][subform][field_dme_marker_description][0][value]' => 'This is a marker with valid coordinates.',
+      'field_dme_marker[1][subform][field_dme_marker_x][0][value]' => '0.5',
+      'field_dme_marker[1][subform][field_dme_marker_y][0][value]' => '0.5',
+    ];
+    $this->submitForm($edit, 'Save');
+    
+    // View the entity to verify only the marker with coordinates appears.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}");
+    
+    // The marker with coordinates should appear
+    $this->assertSession()->pageTextContains('Valid Marker');
+    // The marker without coordinates should not appear
+    $this->assertSession()->pageTextNotContains('No Coordinate Marker');
+  }
+
+  /**
+   * Tests the field_dme_marker_x and field_dme_marker_y field configurations.
+   */
+  public function testCoordinateFieldConfigurations() {
+    // Navigate to edit the existing entity.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
+    
+    // Add a marker.
+    $this->submitForm([], 'Add Marker');
+    
+    // Check that X and Y coordinate fields exist but are hidden from the form display.
+    // This tests that hook_entity_form_display_alter() is working as expected.
+    
+    // The field should exist but not be visible
+    $this->assertSession()->elementExists('css', 'input[name="field_dme_marker[0][subform][field_dme_marker_x][0][value]"]');
+    $this->assertSession()->elementExists('css', 'input[name="field_dme_marker[0][subform][field_dme_marker_y][0][value]"]');
+    
+    // Verify the fields are hidden (type="hidden")
+    $x_field = $this->getSession()->getPage()->find('css', 'input[name="field_dme_marker[0][subform][field_dme_marker_x][0][value]"]');
+    $y_field = $this->getSession()->getPage()->find('css', 'input[name="field_dme_marker[0][subform][field_dme_marker_y][0][value]"]');
+    
+    $this->assertEquals('hidden', $x_field->getAttribute('type'), 'X coordinate field is hidden');
+    $this->assertEquals('hidden', $y_field->getAttribute('type'), 'Y coordinate field is hidden');
+    
+    // Verify the coordinates can still be set programmatically and saved
+    $edit = [
+      'field_dme_marker[0][subform][field_dme_marker_title][0][value]' => 'Hidden Fields Test',
+      'field_dme_marker[0][subform][field_dme_marker_x][0][value]' => '0.33',
+      'field_dme_marker[0][subform][field_dme_marker_y][0][value]' => '0.66',
+    ];
+    $this->submitForm($edit, 'Save');
+    
+    // Verify the entity was saved with the coordinates
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
+    $this->assertSession()->fieldValueEquals('field_dme_marker[0][subform][field_dme_marker_x][0][value]', '0.33');
+    $this->assertSession()->fieldValueEquals('field_dme_marker[0][subform][field_dme_marker_y][0][value]', '0.66');
+  }
+
+  /**
+   * Tests that multiple markers can be added with different coordinates.
+   */
+  public function testMultipleMarkers() {
+    // Navigate to edit the existing entity.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
+    
+    // Add three markers to test multiple marker handling.
+    for ($i = 0; $i < 3; $i++) {
+      $this->submitForm([], 'Add Marker');
+    }
+    
+    // Define coordinates for three separate markers.
+    $marker_data = [
+      [
+        'title' => 'Marker One',
+        'x' => '0.1',
+        'y' => '0.2',
+      ],
+      [
+        'title' => 'Marker Two',
+        'x' => '0.4',
+        'y' => '0.5',
+      ],
+      [
+        'title' => 'Marker Three',
+        'x' => '0.7',
+        'y' => '0.8',
+      ],
+    ];
+    
+    // Fill in data for all three markers.
+    $edit = [];
+    foreach ($marker_data as $delta => $data) {
+      $edit["field_dme_marker[$delta][subform][field_dme_marker_title][0][value]"] = $data['title'];
+      $edit["field_dme_marker[$delta][subform][field_dme_marker_description][0][value]"] = "Description for {$data['title']}";
+      $edit["field_dme_marker[$delta][subform][field_dme_marker_x][0][value]"] = $data['x'];
+      $edit["field_dme_marker[$delta][subform][field_dme_marker_y][0][value]"] = $data['y'];
+    }
+    $this->submitForm($edit, 'Save');
+    
+    // Verify the entity was saved properly.
+    $this->assertSession()->pageTextContains('has been updated');
+    
+    // View the entity to verify all markers appear.
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}");
+    
+    // All three marker titles should appear in the rendered output.
+    foreach ($marker_data as $data) {
+      $this->assertSession()->pageTextContains($data['title']);
+    }
+    
+    // Verify the markers have distinct positions in the DOM.
+    // The exact markup will depend on the template implementation.
+    $page = $this->getSession()->getPage();
+    $markers = $page->findAll('css', '.dme-marker');
+    
+    // Should have exactly three markers
+    $this->assertCount(3, $markers, 'Three markers should be rendered on the page');
+    
+    // Check that each marker has a different position (style attribute)
+    $positions = [];
+    foreach ($markers as $marker) {
+      $style = $marker->getAttribute('style');
+      $this->assertNotEmpty($style, 'Marker should have a style attribute with positioning');
+      $positions[] = $style;
+    }
+    
+    // Each marker should have a unique position
+    $this->assertCount(3, array_unique($positions), 'Each marker should have a unique position');
+  }
+}

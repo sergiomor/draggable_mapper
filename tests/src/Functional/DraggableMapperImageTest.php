@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\draggable_mapper_entity\Functional;
+namespace Drupal\Tests\draggable_mapper\Functional;
 
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
@@ -8,9 +8,9 @@ use Drupal\Tests\TestFileCreationTrait;
 /**
  * Tests the image handling functionality of Draggable Mapper entities.
  *
- * @group draggable_mapper_entity
+ * @group draggable_mapper
  */
-class DraggableMapperEntityImageTest extends BrowserTestBase {
+class DraggableMapperImageTest extends BrowserTestBase {
 
   use TestFileCreationTrait;
 
@@ -25,7 +25,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
    * @var array
    */
   protected static $modules = [
-    'draggable_mapper_entity',
+    'draggable_mapper',
     'field',
     'file',
     'image',
@@ -35,7 +35,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
   ];
 
   /**
-   * A user with permission to administer draggable mapper entities.
+   * A user with permission to administer draggable mapper.
    *
    * @var \Drupal\user\UserInterface
    */
@@ -56,11 +56,10 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
 
     // Create test user with appropriate permissions.
     $this->adminUser = $this->drupalCreateUser([
-      'administer draggable mapper entities',
-      'create draggable mapper entity',
-      'edit draggable mapper entity',
-      'delete draggable mapper entity',
-      'access draggable mapper entity overview',
+      'administer draggable mapper settings',
+      'create new draggable mapper',
+      'edit draggable mapper',
+      'delete draggable mapper',
     ]);
     $this->drupalLogin($this->adminUser);
 
@@ -73,7 +72,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
    */
   protected function createMapEntityWithImage() {
     // Navigate to the add form.
-    $this->drupalGet('admin/structure/draggable_mapper_entity/add');
+    $this->drupalGet('admin/structure/draggable_mapper/add');
     
     // Prepare a test image.
     $image = current($this->getTestFiles('image'));
@@ -97,7 +96,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
    */
   public function testImageUpload() {
     // Navigate to the add form.
-    $this->drupalGet('admin/structure/draggable_mapper_entity/add');
+    $this->drupalGet('admin/structure/draggable_mapper/add');
     
     // Verify image field is present.
     $this->assertSession()->fieldExists('files[field_dme_image_0]');
@@ -123,7 +122,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
     // Navigate to the entity view page to verify image is displayed.
     $url_parts = explode('/', $this->getUrl());
     $new_entity_id = end($url_parts);
-    $this->drupalGet("admin/structure/draggable_mapper_entity/$new_entity_id");
+    $this->drupalGet("admin/structure/draggable_mapper/$new_entity_id");
     
     // Check that the image is present in the rendered output.
     $this->assertSession()->elementExists('css', '.field--name-field-dme-image img');
@@ -138,7 +137,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
    */
   public function testImageReplacement() {
     // Navigate to edit the existing entity.
-    $this->drupalGet("admin/structure/draggable_mapper_entity/{$this->entityId}/edit");
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
     
     // Verify the current image is displayed.
     $this->assertSession()->elementExists('css', '.field--name-field-dme-image .image-widget img');
@@ -158,7 +157,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('has been updated');
     
     // Navigate back to the edit form to verify the image was replaced.
-    $this->drupalGet("admin/structure/draggable_mapper_entity/{$this->entityId}/edit");
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
     
     // The image widget should show the new image.
     $this->assertSession()->elementExists('css', '.field--name-field-dme-image .image-widget img');
@@ -178,7 +177,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
   public function testResponsiveScaling() {
     // This test verifies that the map container has responsive CSS classes.
     // Navigate to the entity view page.
-    $this->drupalGet("admin/structure/draggable_mapper_entity/{$this->entityId}");
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}");
     
     // The map container should have the appropriate responsive classes.
     $this->assertSession()->elementExists('css', '.draggable-mapper-entity');
@@ -189,7 +188,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
     
     // Test that the markers are positioned with percentages.
     // First, add a marker to the entity.
-    $this->drupalGet("admin/structure/draggable_mapper_entity/{$this->entityId}/edit");
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}/edit");
     $this->submitForm([], 'Add Marker');
     
     // Fill in marker information with percentage-based coordinates.
@@ -202,7 +201,7 @@ class DraggableMapperEntityImageTest extends BrowserTestBase {
     $this->submitForm($edit, 'Save');
     
     // Now view the entity and check that marker positioning uses percentage styling.
-    $this->drupalGet("admin/structure/draggable_mapper_entity/{$this->entityId}");
+    $this->drupalGet("admin/structure/draggable_mapper/{$this->entityId}");
     
     // The marker should use percentage-based positioning.
     // This verifies that coordinates are properly stored and used responsively.

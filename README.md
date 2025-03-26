@@ -117,6 +117,10 @@ function MYTHEME_preprocess_draggable_mapper_entity(&$variables) {
 - If markers aren't draggable, check that jQuery UI is properly installed and the libraries are loaded.
 - For marker display issues, check browser console for JavaScript errors.
 - Ensure the uploaded image file is web-optimized (reasonable file size and dimensions).
+- **SVG Support for Marker Icons**: By default, Drupal's image fields have limited support for SVG files. If you need to use SVG files for marker icons:
+  1. Install the excelent [SVG Image](https://www.drupal.org/project/svg_image) module: `composer require drupal/svg_image`
+  2. Enable the module: `drush en svg_image`
+  3. Add 'svg' to the allowed file extensions in the marker icon field settings (under Structure > Paragraph types > DME Marker > Manage fields > Icon > Edit)
 
 ## Contributing
 

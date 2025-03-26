@@ -24,7 +24,6 @@
   display: block;
 }
 
-/* Base marker styles - using relative units based on image wrapper */
 .dme-marker {
   cursor: pointer;
   border: 1px solid #ccc; 
@@ -59,7 +58,8 @@
   z-index: 11;
 }
 
-.dme-marker img {
+.dme-marker img,
+.dme-marker svg {
   max-width: 100%;
   height: auto;
   display: block;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\draggable_mapper_entity\Functional;
+namespace Drupal\Tests\draggable_mapper\Functional;
 
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\TestFileCreationTrait;
@@ -8,9 +8,9 @@ use Drupal\Tests\TestFileCreationTrait;
 /**
  * Tests the creation and management of Draggable Mapper entities.
  *
- * @group draggable_mapper_entity
+ * @group draggable_mapper
  */
-class DraggableMapperEntityCreationTest extends BrowserTestBase {
+class DraggableMapperCreationTest extends BrowserTestBase {
 
   use TestFileCreationTrait;
 
@@ -25,7 +25,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
    * @var array
    */
   protected static $modules = [
-    'draggable_mapper_entity',
+    'draggable_mapper',
     'field',
     'file',
     'image',
@@ -49,11 +49,10 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
 
     // Create test user with appropriate permissions.
     $this->adminUser = $this->drupalCreateUser([
-      'administer draggable mapper entities',
-      'create draggable mapper entity',
-      'edit draggable mapper entity',
-      'delete draggable mapper entity',
-      'access draggable mapper entity overview',
+      'administer draggable mapper settings',
+      'create new draggable mapper',
+      'edit draggable mapper',
+      'delete draggable mapper',
     ]);
     $this->drupalLogin($this->adminUser);
   }
@@ -63,7 +62,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
    */
   public function testEntityCreation() {
     // Navigate to the add form.
-    $this->drupalGet('admin/structure/draggable_mapper_entity/add');
+    $this->drupalGet('admin/structure/draggable_mapper/add');
     $this->assertSession()->statusCodeEquals(200);
 
     // Prepare a test image.
@@ -82,7 +81,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('Draggable Mapper Test Draggable Map has been created.');
 
     // Check the entity exists in the listing.
-    $this->drupalGet('admin/structure/draggable_mapper_entity');
+    $this->drupalGet('admin/structure/draggable_mapper');
     $this->assertSession()->pageTextContains('Test Draggable Map');
   }
 
@@ -91,7 +90,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
    */
   public function testEntityValidation() {
     // Navigate to the add form.
-    $this->drupalGet('admin/structure/draggable_mapper_entity/add');
+    $this->drupalGet('admin/structure/draggable_mapper/add');
 
     // Submit the form without required values.
     $edit = [
@@ -113,7 +112,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
     $this->testEntityCreation();
 
     // Get the entity ID from the listing.
-    $this->drupalGet('admin/structure/draggable_mapper_entity');
+    $this->drupalGet('admin/structure/draggable_mapper');
     $this->clickLink('Edit');
 
     // Change the name.
@@ -126,7 +125,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('Draggable Mapper Updated Map Name has been updated.');
 
     // Verify the change persisted.
-    $this->drupalGet('admin/structure/draggable_mapper_entity');
+    $this->drupalGet('admin/structure/draggable_mapper');
     $this->assertSession()->pageTextContains('Updated Map Name');
   }
 
@@ -138,7 +137,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
     $this->testEntityCreation();
 
     // Navigate to delete form.
-    $this->drupalGet('admin/structure/draggable_mapper_entity');
+    $this->drupalGet('admin/structure/draggable_mapper');
     $this->clickLink('Delete');
 
     // Confirm deletion.
@@ -148,7 +147,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('The Draggable Mapper Test Draggable Map has been deleted.');
 
     // Verify the entity is gone from the listing.
-    $this->drupalGet('admin/structure/draggable_mapper_entity');
+    $this->drupalGet('admin/structure/draggable_mapper');
     $this->assertSession()->pageTextNotContains('Test Draggable Map');
   }
 
@@ -160,7 +159,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
     $this->testEntityCreation();
 
     // Navigate to edit form.
-    $this->drupalGet('admin/structure/draggable_mapper_entity');
+    $this->drupalGet('admin/structure/draggable_mapper');
     $this->clickLink('Edit');
 
     // Add a marker.
@@ -179,7 +178,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('Draggable Mapper Test Draggable Map has been updated.');
 
     // Navigate back to edit form to verify marker exists.
-    $this->drupalGet('admin/structure/draggable_mapper_entity');
+    $this->drupalGet('admin/structure/draggable_mapper');
     $this->clickLink('Edit');
     
     // Verify marker fields exist and have the correct values.
@@ -196,7 +195,7 @@ class DraggableMapperEntityCreationTest extends BrowserTestBase {
     $this->testEntityCreation();
 
     // Navigate to edit form.
-    $this->drupalGet('admin/structure/draggable_mapper_entity');
+    $this->drupalGet('admin/structure/draggable_mapper');
     $this->clickLink('Edit');
 
     // Add a marker.
