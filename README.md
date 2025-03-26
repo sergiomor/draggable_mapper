@@ -75,14 +75,9 @@ Maps can be embedded in other content using an entity reference field or directl
 
 Markers can be configured to show different information:
 - Title only
-- Title with tooltip description on hover
 - Title with expandable description
 - Custom icon with tooltip description on hover
 - Custom icon with expandable description
-
-### Marker Icons
-
-You can upload custom icons for individual markers or set default icons through the module configuration.
 
 ## Extending the Module
 

@@ -72,6 +72,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
+}
+
+.dme-marker:not(.dme-marker-icon) .dme-marker-wrapper  {
   max-width: 80%;
 }
 

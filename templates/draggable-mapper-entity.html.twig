@@ -37,7 +37,7 @@
           {% if markers %}
             {% for marker in markers %}
               <div class="dme-marker dme-mapped-marker{% if marker.icon_url %} dme-marker-icon{% endif %}" style="left: {{ marker.x }}%; top: {{ marker.y }}%;"
-                    {% if marker.title %}title="{{ marker.title }}"{% endif %}
+                    {% if marker.icon_url and marker.title %}title="{{ marker.title }}"{% endif %}
                     {% if marker.description %}data-has-description="true" data-marker-id="{{ loop.index }}"{% endif %}>
                 <div class="dme-marker-wrapper">
                   {% if marker.icon_url %}

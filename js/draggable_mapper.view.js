@@ -64,8 +64,6 @@
           closeAllModals();
         }
       });
-      
-      console.log('Modal opened for marker ID:', markerId);
     });
     
     // Add close button handler
