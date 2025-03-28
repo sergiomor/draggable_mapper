@@ -20,13 +20,13 @@ class DraggableMapperAccessControlHandler extends EntityAccessControlHandler {
 
     switch ($operation) {
       case 'view':
-        return AccessResult::allowedIfHasPermission($account, 'view draggable map entity');
+        return AccessResult::allowedIfHasPermission($account, 'view draggable mapper');
 
       case 'update':
-        return AccessResult::allowedIfHasPermission($account, 'edit draggable map entity');
+        return AccessResult::allowedIfHasPermission($account, 'edit draggable mapper');
 
       case 'delete':
-        return AccessResult::allowedIfHasPermission($account, 'delete draggable map entity');
+        return AccessResult::allowedIfHasPermission($account, 'delete draggable mapper');
     }
 
     return AccessResult::neutral();
@@ -36,7 +36,7 @@ class DraggableMapperAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
-    return AccessResult::allowedIfHasPermission($account, 'add draggable map entity');
+    return AccessResult::allowedIfHasPermission($account, 'add draggable mapper');
   }
 
 }

@@ -1,0 +1,9 @@
+name: 'Draggable Mapper Test'
+type: module
+description: 'Support module for Draggable Mapper testing.'
+package: Testing
+core_version_requirement: ^9 || ^10 || ^11
+dependencies:
+  - drupal:draggable_mapper
+  - jquery_ui_draggable:jquery_ui_draggable
+  - jquery_ui_droppable:jquery_ui_droppable

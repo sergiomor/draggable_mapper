@@ -1,5 +1,5 @@
 administer draggable mapper:
-  title: 'Administer Draggable Mapper settings'
+  title: 'Administer Draggable Mapper'
   description: 'Allow to access the administration form to configure Draggable Mapper.'
   restrict access: true
 

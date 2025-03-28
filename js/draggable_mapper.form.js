@@ -34,7 +34,7 @@
       }
     };
 
-    /**
+  /**
    * Behavior for Draggable Mapper Entity marker handling.
    */
   Drupal.behaviors.markerHandler = {
@@ -52,7 +52,7 @@
       setUnmappedMarkerHeight();
 
       // Update marker heights when window is resized
-$(window).on('resize', setUnmappedMarkerHeight);
+      $(window).on('resize', setUnmappedMarkerHeight);
 
       // Process marker title fields
       once('marker-title-handler', '.field--name-field-dme-marker-title input[type="text"]', context).forEach(function(titleInput) {
@@ -107,6 +107,41 @@ $(window).on('resize', setUnmappedMarkerHeight);
               });
             }, 500);
           }
+      });
+    }
+  };
+
+  /**
+   * Behavior to manage the unmapped wrapper visibility based on image presence.
+   */
+   Drupal.behaviors.draggableMapperWrapperManager = {
+    attach: function (context, settings) {
+      $(once('wrapper-manager', 'body', context)).each(function() {
+        function updateWrapperVisibility() {
+          // Target the unmapped wrapper container
+          const $wrapper = $('#dme-unmapped-wrapper');
+          // Target the unmapped wrapper description
+          const $description = $('.form-item__description');
+          
+          // Check if image exists using multiple methods
+          const imgElements = $('.field--name-field-dme-image img');
+          const imgInputs = $('input[name^="field_dme_image"][name$="[fids]"][value!=""]');
+          
+          const hasImage = imgElements.length > 0 || imgInputs.length > 0;
+          
+          // Update wrapper visibility based on image presence
+          if (hasImage) {
+            $wrapper.removeClass('empty-container');
+            $description.removeClass('empty-container');
+          } 
+        }
+        
+        // Run immediately and after any AJAX completes
+        updateWrapperVisibility();
+        
+        $(document).ajaxComplete(function() {
+          updateWrapperVisibility();
+        });
       });
     }
   };
@@ -562,3 +597,5 @@ $(window).on('resize', setUnmappedMarkerHeight);
     checkAndHideNoMarkersMessage();
   } 
 })(jQuery, Drupal, drupalSettings, once);
+
+

@@ -9,3 +9,5 @@ dependencies:
   - drupal:text
   - paragraphs:paragraphs
   - inline_entity_form:inline_entity_form
+  - jquery_ui_draggable:jquery_ui_draggable
+  - jquery_ui_droppable:jquery_ui_droppable

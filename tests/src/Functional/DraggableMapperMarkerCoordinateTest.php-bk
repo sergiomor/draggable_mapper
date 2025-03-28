@@ -15,37 +15,39 @@ class DraggableMapperMarkerCoordinateTest extends BrowserTestBase {
   use TestFileCreationTrait;
 
   /**
-   * {@inheritdoc}
-   */
-  protected $defaultTheme = 'stark';
-
-  /**
    * Modules to enable.
    *
    * @var array
    */
   protected static $modules = [
     'draggable_mapper',
-    'field',
+    'block',
+    'field_ui',
     'file',
     'image',
     'user',
-    'paragraphs',
-    'inline_entity_form',
-    'text',
+    'node',
+    'system',
   ];
 
   /**
-   * A user with permission to administer draggable mapper entities.
+   * The theme to use with the test.
+   *
+   * @var string
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * A test user with administrative privileges.
    *
    * @var \Drupal\user\UserInterface
    */
   protected $adminUser;
 
   /**
-   * The entity created during the test.
+   * A draggable mapper entity ID for testing.
    *
-   * @var int
+   * @var string
    */
   protected $entityId;
 
@@ -55,12 +57,15 @@ class DraggableMapperMarkerCoordinateTest extends BrowserTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    // Create test user with appropriate permissions.
+    // Create test user with administrative privileges.
     $this->adminUser = $this->drupalCreateUser([
-      'administer draggable mapper settings',
-      'create new draggable mapper',
+      'administer draggable mapper',
+      'add draggable mapper',
       'edit draggable mapper',
       'delete draggable mapper',
+      'view draggable mapper',
+      'access content',
+      'access administration pages',
     ]);
     $this->drupalLogin($this->adminUser);
 
@@ -75,17 +80,59 @@ class DraggableMapperMarkerCoordinateTest extends BrowserTestBase {
     // Navigate to the add form.
     $this->drupalGet('admin/structure/draggable_mapper/add');
     
+    // Print debug info about the current page
+    $this->assertTrue(TRUE, "Current URL: " . $this->getSession()->getCurrentUrl());
+    $this->assertTrue(TRUE, "Page status code: " . $this->getSession()->getStatusCode());
+    
     // Prepare a test image.
     $image = current($this->getTestFiles('image'));
     $image_path = $this->container->get('file_system')->realpath($image->uri);
 
     // Submit the form with minimal values.
     $edit = [
-      'name[0][value]' => 'Coordinate Test Map',
+      'name[0][value]' => 'Test Coordinates Map',
       'status[value]' => 1,
       'files[field_dme_image_0]' => $image_path,
     ];
-    $this->submitForm($edit, 'Save');
+    
+    // Debug: Output all form elements and buttons
+    $page = $this->getSession()->getPage();
+    $forms = $page->findAll('css', 'form');
+    $this->assertTrue(TRUE, "Number of forms found: " . count($forms));
+    
+    $buttons = $page->findAll('css', 'input[type="submit"], button');
+    $button_info = [];
+    foreach ($buttons as $button) {
+      $button_info[] = [
+        'id' => $button->getAttribute('id'),
+        'name' => $button->getAttribute('name'),
+        'value' => $button->getAttribute('value'),
+        'text' => $button->getText(),
+        'class' => $button->getAttribute('class'),
+      ];
+    }
+    $this->assertTrue(TRUE, "Available buttons: " . json_encode($button_info));
+    
+    // Add form fields
+    foreach ($edit as $field => $value) {
+      if (strpos($field, 'files[') === 0) {
+        $this->getSession()->getPage()->attachFileToField(substr($field, 6, -1), $value);
+      } else {
+        $this->getSession()->getPage()->fillField($field, $value);
+      }
+    }
+    
+    // Find and click the save button by its specific attributes
+    $saveButton = $this->getSession()->getPage()->findButton('Save');
+    if (!$saveButton) {
+      $saveButton = $this->getSession()->getPage()->find('css', 'input#edit-submit[value="Save"]');
+    }
+    
+    if ($saveButton) {
+      $saveButton->click();
+    } else {
+      $this->fail('Save button not found on the form');
+    }
 
     // Store the entity ID from the URL for later use.
     $url_parts = explode('/', $this->getUrl());
@@ -306,5 +353,26 @@ class DraggableMapperMarkerCoordinateTest extends BrowserTestBase {
     
     // Each marker should have a unique position
     $this->assertCount(3, array_unique($positions), 'Each marker should have a unique position');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown(): void {
+    // Clean up any entities created during tests.
+    if (isset($this->entityId)) {
+      try {
+        $storage = \Drupal::entityTypeManager()->getStorage('draggable_mapper');
+        $entity = $storage->load($this->entityId);
+        if ($entity) {
+          $entity->delete();
+        }
+      }
+      catch (\Exception $e) {
+        // Log but continue with teardown.
+      }
+    }
+    
+    parent::tearDown();
   }
 }

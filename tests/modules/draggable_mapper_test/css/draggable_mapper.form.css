@@ -1,0 +1,11 @@
+/**
+ * CSS styles for draggable mapper test module.
+ */
+
+.draggable-mapper-container {
+  position: relative;
+}
+
+.draggable-marker {
+  cursor: move;
+}

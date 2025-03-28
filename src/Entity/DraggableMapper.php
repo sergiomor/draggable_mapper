@@ -11,7 +11,7 @@ use Drupal\user\EntityOwnerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
- * Defines the Draggable Mapper entity class.
+ * Defines the Draggable Mapper class.
  *
  * @ContentEntityType(
  *   id = "draggable_mapper",
@@ -33,7 +33,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
  *     },
  *   },
  *   base_table = "draggable_mapper",
- *   admin_permission = "administer draggable map entity",
+ *   admin_permission = "administer draggable mapper",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "name",

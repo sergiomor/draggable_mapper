@@ -37,14 +37,26 @@ Create interactive diagrams with explanatory markers for educational content.
 
 - Drupal 9.x, 10.x or 11.x
 - Paragraphs module
+- Inline Entity Form module
+- jQuery UI Draggable module
+- jQuery UI Droppable module
 
 ## Installation
 
 1. Download and extract the module to your `/modules/custom` directory.
-2. Enable the module through the Drupal admin interface (`/admin/modules`) or using Drush:
+2. Install required modules using Composer:
 
    ```
-   drush en draggable_mapper_entity
+   composer require drupal/paragraphs
+   composer require drupal/inline_entity_form
+   composer require drupal/jquery_ui_draggable
+   composer require drupal/jquery_ui_droppable
+   ```
+
+3. Enable the module through the Drupal admin interface (`/admin/modules`) or using Drush:
+
+   ```
+   drush en draggable_mapper
    ```
 
 ## Usage
@@ -76,7 +88,7 @@ Maps can be embedded in other content using an entity reference field or directl
 Markers can be configured to show different information:
 - Title only
 - Title with expandable description
-- Custom icon with tooltip description on hover
+- Custom icon with tooltip title on hover
 - Custom icon with expandable description
 
 ## Extending the Module
@@ -114,7 +126,7 @@ function MYTHEME_preprocess_draggable_mapper_entity(&$variables) {
 
 ## Troubleshooting
 
-- If markers aren't draggable, check that jQuery UI is properly installed and the libraries are loaded.
+- If markers aren't draggable, ensure that the jQuery UI Draggable and jQuery UI Droppable modules are properly installed and enabled.
 - For marker display issues, check browser console for JavaScript errors.
 - Ensure the uploaded image file is web-optimized (reasonable file size and dimensions).
 - **SVG Support for Marker Icons**: By default, Drupal's image fields have limited support for SVG files. If you need to use SVG files for marker icons:

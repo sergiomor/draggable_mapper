@@ -30,7 +30,6 @@
 .dme-image {
   position: relative;
   max-width: 100%;
-  min-height: 100px; 
 }
 
 .dme-image img {
@@ -153,4 +152,18 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+.empty-container {
+  display: none;
+}
+
+.dme-loading {
+  padding: 5rem 0.4rem;
+  font-style: italic;
+  color: #666;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

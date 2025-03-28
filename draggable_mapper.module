@@ -238,7 +238,7 @@ function _draggable_mapper_add_preview_container(&$form, $form_state = NULL) {
   // Add the container after the markers fieldset
   $weight = isset($form['field_dme_image']['#weight']) ? $form['field_dme_marker']['#weight'] + 0.5 : 50;
   
-  $image_container = '<div class="dme-loading">' . new TranslatableMarkup('The map preview will appear here when a map image is added.') . '</div>';
+  $image_container = '<div class="dme-loading"><p>' . new TranslatableMarkup('The map preview will appear here when a map image is added.') . '</p></div>';
   
   // If we have an image, create the map preview
   if ($image_url) {
@@ -267,7 +267,7 @@ function _draggable_mapper_add_preview_container(&$form, $form_state = NULL) {
           '#type' => 'html_tag',
           '#tag' => 'div',
           '#value' => new TranslatableMarkup('Drag markers to position map elements.'),
-          '#attributes' => ['class' => ['form-item__description']],
+          '#attributes' => ['class' => ['form-item__description', 'empty-container']],
         ],
       ],
     ]
@@ -277,7 +277,7 @@ function _draggable_mapper_add_preview_container(&$form, $form_state = NULL) {
     '#type' => 'container',
     '#attributes' => [
       'id' => 'dme-unmapped-wrapper',
-      'class' => ['dme-unmapped-wrapper'],
+      'class' => ['dme-unmapped-wrapper', 'empty-container'],
     ],
   ];
 
