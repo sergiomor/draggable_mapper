@@ -75,7 +75,7 @@ function template_preprocess_draggable_mapper(array &$variables) {
   
   // Get the map image URL
   $variables['map_image_url'] = '';
-  if (!$entity->get('field_dme_image')->isEmpty()) {
+  if (method_exists($entity, 'get') && !$entity->get('field_dme_image')->isEmpty()) {
     $image_file = File::load($entity->get('field_dme_image')->target_id);
     if ($image_file) {
       $variables['map_image_url'] = \Drupal::service('file_url_generator')->generateString($image_file->getFileUri());
@@ -84,14 +84,32 @@ function template_preprocess_draggable_mapper(array &$variables) {
   
   // Get the markers
   $variables['markers'] = [];
-  if (!$entity->get('field_dme_marker')->isEmpty()) {
+  if (method_exists($entity, 'get') && !$entity->get('field_dme_marker')->isEmpty()) {
     foreach ($entity->get('field_dme_marker')->referencedEntities() as $index => $paragraph) {
       
       // Bypass unmapped markers (with null or empty coordinates)
-      if ($paragraph->get('field_dme_marker_x')->isEmpty() || 
+      if (method_exists($paragraph, 'get') && ($paragraph->get('field_dme_marker_x')->isEmpty() || 
           $paragraph->get('field_dme_marker_y')->isEmpty() ||
           $paragraph->get('field_dme_marker_x')->value === NULL ||
-          $paragraph->get('field_dme_marker_y')->value === NULL) {
+          $paragraph->get('field_dme_marker_y')->value === NULL)) {
+        continue; // Skip this marker
+      }
+      
+      // Skip width/height check if fields don't exist
+      $hasWidth = method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_width');
+      $hasHeight = method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_height');
+      
+      // Check width if the field exists
+      if ($hasWidth && 
+          (method_exists($paragraph, 'get') && ($paragraph->get('field_dme_marker_width')->isEmpty() || 
+           $paragraph->get('field_dme_marker_width')->value === NULL))) {
+        continue; // Skip this marker
+      }
+      
+      // Check height if the field exists
+      if ($hasHeight && 
+          (method_exists($paragraph, 'get') && ($paragraph->get('field_dme_marker_height')->isEmpty() || 
+           $paragraph->get('field_dme_marker_height')->value === NULL))) {
         continue; // Skip this marker
       }
       
@@ -100,11 +118,21 @@ function template_preprocess_draggable_mapper(array &$variables) {
         'y' => $paragraph->get('field_dme_marker_y')->value * 100,
       ];
       
+      // Add width if the field exists
+      if ($hasWidth) {
+        $marker['width'] = $paragraph->get('field_dme_marker_width')->value * 100;
+      }
+      
+      // Add height if the field exists
+      if ($hasHeight) {
+        $marker['height'] = $paragraph->get('field_dme_marker_height')->value * 100;
+      }
+      
       // Add title/description if available
-      if ($paragraph->hasField('field_dme_marker_title') && !$paragraph->get('field_dme_marker_title')->isEmpty()) {
+      if (method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_title') && method_exists($paragraph, 'get') && !$paragraph->get('field_dme_marker_title')->isEmpty()) {
         $marker['title'] = $paragraph->get('field_dme_marker_title')->value;
       }
-      elseif ($paragraph->hasField('field_title') && !$paragraph->get('field_title')->isEmpty()) {
+      elseif (method_exists($paragraph, 'hasField') && $paragraph->hasField('field_title') && method_exists($paragraph, 'get') && !$paragraph->get('field_title')->isEmpty()) {
         // Try an alternate field name
         $marker['title'] = $paragraph->get('field_title')->value;
       }
@@ -113,7 +141,7 @@ function template_preprocess_draggable_mapper(array &$variables) {
         $marker['title'] = 'Marker ' . ($index + 1);
       }
       
-      if ($paragraph->hasField('field_dme_marker_description') && !$paragraph->get('field_dme_marker_description')->isEmpty()) {
+      if (method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_description') && method_exists($paragraph, 'get') && !$paragraph->get('field_dme_marker_description')->isEmpty()) {
         $marker['description'] = [
           '#type' => 'processed_text',
           '#text' => $paragraph->get('field_dme_marker_description')->value,
@@ -122,7 +150,7 @@ function template_preprocess_draggable_mapper(array &$variables) {
       }
       
       // Add icon if available
-      if ($paragraph->hasField('field_dme_marker_icon') && !$paragraph->get('field_dme_marker_icon')->isEmpty()) {
+      if (method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_icon') && method_exists($paragraph, 'get') && !$paragraph->get('field_dme_marker_icon')->isEmpty()) {
         $icon_file = File::load($paragraph->get('field_dme_marker_icon')->target_id);
         if ($icon_file) {
           $marker['icon_url'] = \Drupal::service('file_url_generator')->generateString($icon_file->getFileUri());
@@ -135,30 +163,6 @@ function template_preprocess_draggable_mapper(array &$variables) {
   
   // Add library for viewing
   $variables['#attached']['library'][] = 'draggable_mapper/draggable_mapper.view';
-}
-
-/**
- * Implements hook_entity_form_display_alter().
- */
-function draggable_mapper_form_display_alter(&$form_display, $context) {
-  // Only act on paragraph entities of dme_marker bundle
-  if ($context['entity_type'] == 'paragraph' && $context['bundle'] == 'dme_marker') {
-    // Hide the x and y coordinate fields
-    if ($form_display->getComponent('field_dme_marker_x')) {
-      $form_display->setComponent('field_dme_marker_x', [
-        'type' => 'hidden',
-        'region' => 'hidden',
-        'weight' => 99,
-      ]);
-    }
-    if ($form_display->getComponent('field_dme_marker_y')) {
-      $form_display->setComponent('field_dme_marker_y', [
-        'type' => 'hidden',
-        'region' => 'hidden',
-        'weight' => 99,
-      ]);
-    }
-  }
 }
 
 /**
@@ -185,38 +189,34 @@ function _draggable_mapper_add_preview_container(&$form, $form_state = NULL) {
     // Attempt to hide the coordinate fields by making them hidden inputs
     foreach (Element::children($form['field_dme_marker']['widget']) as $delta) {
       if (isset($form['field_dme_marker']['widget'][$delta]['subform'])) {
+
         // Handle X coordinate field
         if (isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_x']) &&
             isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_x']['widget'])) {
-          // Try different ways to hide this field
-          $x_widget = &$form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_x']['widget'];
-          
-          // Try approach #1: Set widget type directly if possible
-          if (isset($x_widget[0])) {
-            if (isset($x_widget[0]['value'])) {
-              $x_widget[0]['value']['#type'] = 'hidden';
-            }
-            else {
-              $x_widget[0]['#type'] = 'hidden';
-            }
-          }
+          // hide form element
+          $form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_x']['widget'][0]['value']['#type'] = 'hidden';
         }
         
         // Handle Y coordinate field
         if (isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']) &&
             isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']['widget'])) {
-          // Try different ways to hide this field
-          $y_widget = &$form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']['widget'];
-          
-          // Try approach #1: Set widget type directly if possible
-          if (isset($y_widget[0])) {
-            if (isset($y_widget[0]['value'])) {
-              $y_widget[0]['value']['#type'] = 'hidden';
-            }
-            else {
-              $y_widget[0]['#type'] = 'hidden';
-            }
-          }
+          // hide form element
+          $form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']['widget'][0]['value']['#type'] = 'hidden';
+      
+        }
+
+        // Handle width field
+        if (isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_width']) &&
+            isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_width']['widget'])) {
+          // hide form element
+          $form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_width']['widget'][0]['value']['#type'] = 'hidden';
+        }
+
+        // Handle height field
+        if (isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_height']) &&
+            isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_height']['widget'])) {
+          // hide form element
+          $form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_height']['widget'][0]['value']['#type'] = 'hidden';
         }
       }
     }
@@ -398,7 +398,10 @@ function _draggable_mapper_add_preview_container(&$form, $form_state = NULL) {
           'aria-label' => new TranslatableMarkup('Interactive component positioning interface'),
           'aria-describedby' => 'dme-instructions',
           'aria-live' => 'polite',
-          'style' => isset($marker['x'], $marker['y']) ? 'left: ' . ($marker['x'] * 100) . '%; top: ' . ($marker['y'] * 100) . '%;' : '',
+          'style' => isset($marker['x'], $marker['y']) ? 
+                    'left: ' . ($marker['x'] * 100) . '%; top: ' . ($marker['y'] * 100) . '%;' . 
+                    (isset($marker['width']) ? ' width: ' . ($marker['width'] * 100) . '%;' : '') .
+                    (isset($marker['height']) ? ' height: ' . ($marker['height'] * 100) . '%;' : '') : '',
         ], 
         '#markup' => $marker_html
       ];
@@ -497,6 +500,8 @@ function _draggable_mapper_get_image_fid($form, $form_state, $field_name = 'fiel
  *   - icon_fid: The file ID of the marker icon (if it exists), NULL otherwise
  *   - x: The X coordinate of the marker (if it exists), NULL otherwise
  *   - y: The Y coordinate of the marker (if it exists), NULL otherwise
+ *   - width: The width of the marker (if it exists), NULL otherwise
+ *   - height: The height of the marker (if it exists), NULL otherwise
  */
 function _draggable_mapper_get_marker_data($form, $form_state, $field_name = 'field_dme_marker') {
   $markers = [];
@@ -514,7 +519,7 @@ function _draggable_mapper_get_marker_data($form, $form_state, $field_name = 'fi
   // Try to get saved X/Y coordinates
   if ($entity && !$entity->isNew()) {
     // Use field_dme_marker target_ids directly from the entity
-    if ($entity->hasField($field_name) && !$entity->get($field_name)->isEmpty()) {
+    if (method_exists($entity, 'hasField') && $entity->hasField($field_name) && method_exists($entity, 'get') && !$entity->get($field_name)->isEmpty()) {
       $paragraph_refs = $entity->get($field_name)->getValue();
       
       // Create a map of index to paragraph ID
@@ -541,6 +546,8 @@ function _draggable_mapper_get_marker_data($form, $form_state, $field_name = 'fi
         'icon_fid' => NULL,
         'x' => NULL,
         'y' => NULL,
+        'width' => NULL,
+        'height' => NULL,
       ];
       
       // Get title from default value
@@ -570,13 +577,21 @@ function _draggable_mapper_get_marker_data($form, $form_state, $field_name = 'fi
         
         if ($paragraph) {
           // Get X coordinate
-          if ($paragraph->hasField('field_dme_marker_x') && !$paragraph->get('field_dme_marker_x')->isEmpty()) {
+          if (method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_x') && method_exists($paragraph, 'get') && !$paragraph->get('field_dme_marker_x')->isEmpty()) {
             $marker_data['x'] = $paragraph->get('field_dme_marker_x')->value;
           }
           
           // Get Y coordinate
-          if ($paragraph->hasField('field_dme_marker_y') && !$paragraph->get('field_dme_marker_y')->isEmpty()) {
+          if (method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_y') && method_exists($paragraph, 'get') && !$paragraph->get('field_dme_marker_y')->isEmpty()) {
             $marker_data['y'] = $paragraph->get('field_dme_marker_y')->value;
+          }
+          // Get width if field exists
+          if (method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_width') && method_exists($paragraph, 'get') && !$paragraph->get('field_dme_marker_width')->isEmpty()) {
+            $marker_data['width'] = $paragraph->get('field_dme_marker_width')->value;
+          }
+          // Get height if field exists
+          if (method_exists($paragraph, 'hasField') && $paragraph->hasField('field_dme_marker_height') && method_exists($paragraph, 'get') && !$paragraph->get('field_dme_marker_height')->isEmpty()) {
+            $marker_data['height'] = $paragraph->get('field_dme_marker_height')->value;
           }
         }
       }

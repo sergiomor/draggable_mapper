@@ -40,6 +40,7 @@ Create interactive diagrams with explanatory markers for educational content.
 - Inline Entity Form module
 - jQuery UI Draggable module
 - jQuery UI Droppable module
+- jQuery UI Resizable module
 
 ## Installation
 
@@ -51,6 +52,7 @@ Create interactive diagrams with explanatory markers for educational content.
    composer require drupal/inline_entity_form
    composer require drupal/jquery_ui_draggable
    composer require drupal/jquery_ui_droppable
+   composer require drupal/jquery_ui_resizable
    ```
 
 3. Enable the module through the Drupal admin interface (`/admin/modules`) or using Drush:

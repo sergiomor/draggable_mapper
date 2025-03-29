@@ -12,6 +12,7 @@ function draggable_mapper_install() {
   // Clear caches to ensure clean installation
   \Drupal::service('cache.discovery')->deleteAll();
   \Drupal::service('cache.config')->deleteAll();
+  \Drupal::service('cache.render')->deleteAll();
   
   // Remove any conflicting configuration
   _draggable_mapper_remove_conflicting_configs();
@@ -93,11 +94,15 @@ function _draggable_mapper_remove_database_tables() {
     'paragraph__field_dme_marker_title', 
     'paragraph__field_dme_marker_x',
     'paragraph__field_dme_marker_y',
+    'paragraph__field_dme_marker_width',
+    'paragraph__field_dme_marker_height',
     'paragraph_revision__field_dme_marker_description',
     'paragraph_revision__field_dme_marker_icon',
     'paragraph_revision__field_dme_marker_title',
     'paragraph_revision__field_dme_marker_x',
-    'paragraph_revision__field_dme_marker_y',
+    'paragraph_revision__field_dme_marker_y', 
+    'paragraph_revision__field_dme_marker_width',
+    'paragraph_revision__field_dme_marker_height',
   ];
   
   foreach ($paragraph_tables as $table) {
@@ -171,6 +176,8 @@ function _draggable_mapper_remove_configs() {
     'field.field.paragraph.dme_marker.field_dme_marker_description',
     'field.field.paragraph.dme_marker.field_dme_marker_icon',
     'field.field.paragraph.dme_marker.field_dme_marker_title',
+    'field.field.paragraph.dme_marker.field_dme_marker_width',
+    'field.field.paragraph.dme_marker.field_dme_marker_height',
     'field.field.paragraph.dme_marker.field_dme_marker_x',
     'field.field.paragraph.dme_marker.field_dme_marker_y',
     'field.storage.draggable_mapper.field_dme_image',
@@ -178,6 +185,8 @@ function _draggable_mapper_remove_configs() {
     'field.storage.paragraph.field_dme_marker_description',
     'field.storage.paragraph.field_dme_marker_icon',
     'field.storage.paragraph.field_dme_marker_title',
+    'field.storage.paragraph.field_dme_marker_width',
+    'field.storage.paragraph.field_dme_marker_height',
     'field.storage.paragraph.field_dme_marker_x',
     'field.storage.paragraph.field_dme_marker_y',
     'paragraphs.paragraphs_type.dme_marker',
@@ -189,6 +198,8 @@ function _draggable_mapper_remove_configs() {
     }
   }
   
-  // Clear all caches
-  drupal_flush_all_caches();
+  // Clear caches
+  \Drupal::service('cache.discovery')->deleteAll();
+  \Drupal::service('cache.config')->deleteAll();
+  \Drupal::service('cache.render')->deleteAll();
 }

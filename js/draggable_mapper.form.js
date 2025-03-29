@@ -49,10 +49,10 @@
       });
 
       // Set initial height for unmapped markers
-      setUnmappedMarkerHeight();
+     // setUnmappedMarkerHeight();
 
       // Update marker heights when window is resized
-      $(window).on('resize', setUnmappedMarkerHeight);
+     // $(window).on('resize', setUnmappedMarkerHeight);
 
       // Process marker title fields
       once('marker-title-handler', '.field--name-field-dme-marker-title input[type="text"]', context).forEach(function(titleInput) {
@@ -114,7 +114,7 @@
   /**
    * Behavior to manage the unmapped wrapper visibility based on image presence.
    */
-   Drupal.behaviors.draggableMapperWrapperManager = {
+  Drupal.behaviors.draggableMapperWrapperManager = {
     attach: function (context, settings) {
       $(once('wrapper-manager', 'body', context)).each(function() {
         function updateWrapperVisibility() {
@@ -128,6 +128,8 @@
           const imgInputs = $('input[name^="field_dme_image"][name$="[fids]"][value!=""]');
           
           const hasImage = imgElements.length > 0 || imgInputs.length > 0;
+
+          console.log(hasImage);
           
           // Update wrapper visibility based on image presence
           if (hasImage) {
@@ -145,7 +147,37 @@
       });
     }
   };
-  
+
+  /**
+   * Behavior to make Mapped Marker resizable.
+   */
+  Drupal.behaviors.resizableMarker = {
+    attach: function (context, settings) {
+
+      once('resizable-marker', '.dme-mapped-marker', context).forEach(function(marker) {
+        
+        // Make the marker resizable
+        makeMarkerResizable($(marker));
+        
+      });
+      
+      // Ensure resizable property is maintained after drag operations
+      $(document).on('dragstop', '.dme-mapped-marker', function() {
+
+        // Re-initialize resizable if needed
+        if (!$(this).hasClass('ui-resizable')) {
+          
+          $(this).resizable({
+            aspectRatio: $(this).hasClass('dme-marker-icon') ? true : false,
+            handles: 'all',
+            containment: '.dme-container-wrapper',
+            minWidth: 100
+          });
+        }
+      });
+    }
+  };
+
   /**
    * Updates a marker based on its title input field.
    */
@@ -188,14 +220,14 @@
   /**
  * Set the height of unmapped markers to equal to mapped markers
  */
-  function setUnmappedMarkerHeight() {
+/*   function setUnmappedMarkerHeight() {
     var $containerWrapper = $('.dme-container-wrapper');
     if ($containerWrapper.length) {
       var containerHeight = $containerWrapper.height();
       var markerHeight = containerHeight * 0.1; // 10% of container height
       $('.dme-unmapped-marker, .dme-no-markers-message').css('height', markerHeight + 'px');
     }
-  } 
+  }  */
  
   /**
    * Updates a marker icon based on the file input.
@@ -231,6 +263,16 @@
         $wrapper.html('<img src="' + e.target.result + '" alt="Marker Icon" />');
         // Add a class to indicate this marker has an icon
         $marker.addClass('dme-marker-icon').removeClass('has-title');
+        // Set height to auto for the marker
+        $marker.css('height', 'auto');
+        if ($marker.hasClass('dme-mapped-marker')) {
+          $marker.resizable({
+            aspectRatio: true,
+            handles: 'all',
+            minWidth: 100,
+            containment: '.dme-container-wrapper',
+          });
+        }
       } else {
         // We need to create the marker first
         ensureMarkerExists(delta, '');
@@ -238,8 +280,7 @@
         var $newMarker = $('#dme-marker-' + delta);
         $newMarker.find('.dme-marker-wrapper').empty().html('<img src="' + e.target.result + '" alt="Marker Icon" />');
         $newMarker.addClass('dme-marker-icon').removeClass('has-title');
-
-      }
+      }     
     };
     reader.readAsDataURL($iconInput[0].files[0]);
 
@@ -374,12 +415,169 @@
             
             // Update classes
             $('#dme-marker-' + delta).removeClass('dme-marker-icon').addClass('has-text');
+            // Reset the fixed height when reverting to text
+            $('#dme-marker-' + delta).css('height', '');
+            // Make the marker resizable
+            $('#dme-marker-' + delta).resizable({
+              aspectRatio: false,
+              handles: 'all',
+              minHeight: 50,
+              minWidth: 100,
+              containment: '.dme-container-wrapper',
+              resize: function(event, ui) {
+                // Update marker font size in real-time
+                resizeFont($(this));
+              },
+            });
           }
           
           return false; // Break the loop after finding the matching paragraph
         }
       });
     });
+  }
+
+  /**
+   * Initialize font size for a marker based on its dimensions
+   */
+  function resizeFont($marker) {
+
+    // Update marker font size in real-time
+    var width = $marker.width();  // Call the method with ()
+    var height = $marker.height(); // Call the method with ()
+                
+    // Base calculation on width for tall markers
+    var fontSize;
+    var aspectRatio = width / height;
+    console.log(aspectRatio);
+                
+                
+    if (aspectRatio < 3) {
+      fontSize = width * 0.1;
+    } else {
+      var smallestDimension = Math.min(width, height);
+      fontSize = smallestDimension * 0.25;
+    }
+    
+    fontSize = Math.max(fontSize, 12);            
+    $($marker).css('font-size', fontSize + 'px');
+    $($marker).attr('data-font-size', fontSize);
+
+  }
+
+  /**
+   * Make a marker resizable with appropriate options based on marker type
+   * @param {Object} $marker - jQuery object for the marker element
+   */
+  function makeMarkerResizable($marker) {
+    // If marker is already resizable, destroy it first
+    if ($marker.hasClass('ui-resizable')) {
+      $marker.resizable('destroy');
+    }
+
+    $marker.resizable({
+      //aspectRatio: true,
+      aspectRatio: $marker.hasClass('dme-marker-icon') ? true : false,
+      handles: 'all',
+      minWidth: 100,
+      minHeight:  $marker.hasClass('dme-marker-icon') ? '' : 50,
+      containment: '.dme-container-wrapper',
+      start: function(event, ui) {
+        $(this).addClass('dme-marker-resizing');
+      },
+      resize: function(event, ui) {
+        // Update marker font size in real-time
+        resizeFont($(this));
+      },
+      stop: function(event, ui) {
+        $(this).removeClass('dme-marker-resizing');
+      
+          // Get marker data
+          var markerId = $(this).attr('id');
+          var delta = markerId.replace('dme-marker-', '');
+          
+          // Update hidden fields with new size information
+          if (delta) {
+            // Calculate size as percentage of container
+            var containerWidth = $('.dme-container-wrapper').width();
+            var containerHeight = $('.dme-container-wrapper').height();
+            var markerWidth = ui.size.width;
+            var markerHeight = ui.size.height;
+            
+            // Convert width to decimal between 0 and 1
+            var widthDecimal = (markerWidth / containerWidth).toFixed(4);
+            
+            // Convert height to decimal between 0 and 1
+            var heightDecimal = (markerHeight / containerHeight).toFixed(4);
+            
+            // Find and update the corresponding width input field
+            $('input[name*="field_dme_marker_width"][name*="[' + delta + ']"]').val(widthDecimal);
+            
+            // Find and update the corresponding height input field
+            $('input[name*="field_dme_marker_height"][name*="[' + delta + ']"]').val(heightDecimal);
+            
+            // Store size information in custom data attributes for persistence
+            $(this).attr('data-size-width', markerWidth);
+            $(this).attr('data-size-height', markerHeight);
+        }
+      }
+    });
+  }
+
+  /**
+   * Checks for existing uploaded marker icons on page load and updates markers accordingly
+   */
+  function initializeExistingMarkerIcons() {
+    // Find all marker paragraphs with uploaded icons
+    $('.paragraph-type--dme-marker .field--name-field-dme-marker-icon .file, .paragraphs-subform .field--name-field-dme-marker-icon .file').each(function() {
+      // Get the paragraph delta
+      var $paragraphItem = $(this).closest('.paragraph-type--dme-marker');
+      if (!$paragraphItem.length) {
+        $paragraphItem = $(this).closest('.paragraphs-subform');
+      }
+      
+      if (!$paragraphItem.length) {
+        return;
+      }
+      
+      var delta = getDeltaFromParagraph($paragraphItem);
+      if (delta === null) {
+        return;
+      }
+    
+      // Find the image source - look for img or a.href for file URLs
+      var imgSrc = $(this).find('img').attr('src');
+      if (!imgSrc) {
+        // Try finding href in case it's a file link
+        imgSrc = $(this).find('a').attr('href');
+      }
+
+      if (!imgSrc) {
+        return;
+      }
+      
+      // Update marker with this icon
+      var $marker = $('#dme-marker-' + delta);
+      if ($marker.length) {
+        // First empty the wrapper completely
+        var $wrapper = $marker.find('.dme-marker-wrapper');
+        $wrapper.empty();
+        // Then add only the image
+        $wrapper.html('<img src="' + imgSrc + '" alt="Marker Icon" />');
+        // Add a class to indicate this marker has an icon
+        $marker.addClass('dme-marker-icon').removeClass('has-title');
+      } else {
+        // We need to create the marker first
+        ensureMarkerExists(delta, '');
+        // Now update it with the icon
+        var $newMarker = $('#dme-marker-' + delta);
+        $newMarker.find('.dme-marker-wrapper').empty().html('<img src="' + imgSrc + '" alt="Marker Icon" />');
+        $newMarker.addClass('dme-marker-icon').removeClass('has-title');
+      }
+    });
+    
+    // Check and hide the no markers message if needed
+    checkAndHideNoMarkersMessage();
   }
 
   /**
@@ -400,7 +598,8 @@
           // Force the helper to maintain the current marker dimensions
           $clone.css({
             'width': currentWidth,
-            'height': currentHeight
+            'height': currentHeight,
+            'box-sizing': 'border-box'
           });
           
           return $clone;
@@ -510,7 +709,31 @@
                         
             // Mark as mapped
             $marker.removeClass('dme-unmapped-marker').addClass('dme-mapped-marker');
-            
+
+            // Apply resizable behavior immediately after drop
+            if ($marker.hasClass('dme-marker-icon')) {
+              // For icon markers, use aspect ratio
+              $marker.resizable({
+                aspectRatio: true,
+                handles: 'all',
+                minWidth: 100,
+                containment: '.dme-container-wrapper',
+              });
+            } else {
+              // For text markers, don't use aspect ratio
+              $marker.resizable({
+                aspectRatio: false,
+                handles: 'all',
+                minHeight: 50,
+                minWidth: 100,
+                containment: '.dme-container-wrapper',
+                resize: function(event, ui) {
+                  // Update marker font size in real-time
+                  resizeFont($(this));
+                },
+              });
+            }
+
             // Check if this was the last marker in the unmapped wrapper
             checkForEmptyUnmappedWrapper();
           }
@@ -536,66 +759,9 @@
                       Drupal.t('Add new markers to be mapped') + '</div>');
         $unmappedContainer.append($message);
         $message.fadeIn(400);
-        setUnmappedMarkerHeight();
+        //setUnmappedMarkerHeight();
       }
     }
   }
 
-  /**
-   * Checks for existing uploaded marker icons on page load and updates markers accordingly
-   */
-  function initializeExistingMarkerIcons() {
-    // Find all marker paragraphs with uploaded icons
-    $('.paragraph-type--dme-marker .field--name-field-dme-marker-icon .file, .paragraphs-subform .field--name-field-dme-marker-icon .file').each(function() {
-      // Get the paragraph delta
-      var $paragraphItem = $(this).closest('.paragraph-type--dme-marker');
-      if (!$paragraphItem.length) {
-        $paragraphItem = $(this).closest('.paragraphs-subform');
-      }
-      
-      if (!$paragraphItem.length) {
-        return;
-      }
-      
-      var delta = getDeltaFromParagraph($paragraphItem);
-      if (delta === null) {
-        return;
-      }
-    
-      // Find the image source - look for img or a.href for file URLs
-      var imgSrc = $(this).find('img').attr('src');
-      if (!imgSrc) {
-        // Try finding href in case it's a file link
-        imgSrc = $(this).find('a').attr('href');
-      }
-
-      if (!imgSrc) {
-        return;
-      }
-      
-      // Update marker with this icon
-      var $marker = $('#dme-marker-' + delta);
-      if ($marker.length) {
-        // First empty the wrapper completely
-        var $wrapper = $marker.find('.dme-marker-wrapper');
-        $wrapper.empty();
-        // Then add only the image
-        $wrapper.html('<img src="' + imgSrc + '" alt="Marker Icon" />');
-        // Add a class to indicate this marker has an icon
-        $marker.addClass('dme-marker-icon').removeClass('has-title');
-      } else {
-        // We need to create the marker first
-        ensureMarkerExists(delta, '');
-        // Now update it with the icon
-        var $newMarker = $('#dme-marker-' + delta);
-        $newMarker.find('.dme-marker-wrapper').empty().html('<img src="' + imgSrc + '" alt="Marker Icon" />');
-        $newMarker.addClass('dme-marker-icon').removeClass('has-title');
-      }
-    });
-    
-    // Check and hide the no markers message if needed
-    checkAndHideNoMarkersMessage();
-  } 
 })(jQuery, Drupal, drupalSettings, once);
-
-

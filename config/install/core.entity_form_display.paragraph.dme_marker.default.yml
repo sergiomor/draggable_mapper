@@ -5,6 +5,8 @@ dependencies:
     - field.field.paragraph.dme_marker.field_dme_marker_description
     - field.field.paragraph.dme_marker.field_dme_marker_icon
     - field.field.paragraph.dme_marker.field_dme_marker_title
+    - field.field.paragraph.dme_marker.field_dme_marker_width
+    - field.field.paragraph.dme_marker.field_dme_marker_height
     - field.field.paragraph.dme_marker.field_dme_marker_x
     - field.field.paragraph.dme_marker.field_dme_marker_y
     - paragraphs.paragraphs_type.dme_marker
@@ -38,6 +40,20 @@ content:
     region: content
     settings:
       size: 60
+      placeholder: ''
+    third_party_settings: {}
+  field_dme_marker_width:
+    type: number
+    weight: 6
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {}
+  field_dme_marker_height:
+    type: number
+    weight: 7
+    region: content
+    settings:
       placeholder: ''
     third_party_settings: {}
   field_dme_marker_x:

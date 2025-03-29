@@ -24,6 +24,11 @@
     // Find all markers within this container
     const $markers = $container.find('.dme-marker');
     
+    // Initialize font sizes for all markers
+    $markers.each(function() {
+      initializeMarkerFontSize($(this));
+    });
+    
     // Initialize markers with descriptions
     $markers.filter('[data-has-description="true"]').each(function() {
       initializeModalForMarker($(this));
@@ -33,6 +38,34 @@
     $markers.not('[data-has-description="true"]').each(function() {
       initializeMarkerClickBehavior($(this));
     });
+  }
+
+  /**
+   * Initialize font size for a marker based on its dimensions
+   * @param {Object} $marker - jQuery object for the marker
+   */
+  function initializeMarkerFontSize($marker) {
+    // Get marker dimensions
+    var width = $marker.width();
+    var height = $marker.height();
+             
+    // Base calculation on width for tall markers to prevent text overflow
+    var fontSize;
+    var aspectRatio = width / height;
+                
+    if (aspectRatio < 3) {
+      // For tall markers, base font size on width instead of height
+      fontSize = width * 0.1;
+    } else {
+      // For square or wide markers, use smallest dimension
+      var smallestDimension = Math.min(width, height);
+      fontSize = smallestDimension * 0.25;
+    }
+    
+    // Set a minimum readable font size
+    fontSize = Math.max(fontSize, 12);            
+    $($marker).css('font-size', fontSize + 'px');
+    $($marker).attr('data-font-size', fontSize);
   }
 
   /**
