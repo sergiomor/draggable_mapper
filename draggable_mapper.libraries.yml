@@ -5,6 +5,13 @@ draggable_mapper.view:
       css/draggable_mapper.view.css: {}
   js:
     js/draggable_mapper.view.js: {} 
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+    - jquery_ui_draggable/jquery_ui_draggable
+    - jquery_ui_resizable/jquery_ui_resizable
 
 draggable_mapper.form:
   version: 1.x

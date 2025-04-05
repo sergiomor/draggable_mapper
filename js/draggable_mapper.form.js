@@ -7,7 +7,7 @@
 
   /**
   * Behavior for Draggable Mapper Entity file preview.
-   */
+  */
   Drupal.behaviors.filePreview = {
       attach: function (context, settings) {
         once('file-preview', '.field--name-field-dme-image input[type="file"]', context).forEach(function(fileInput) {
@@ -158,6 +158,9 @@
         
         // Make the marker resizable
         makeMarkerResizable($(marker));
+
+        // Resize marker font
+        resizeFont($(marker));
         
       });
       
@@ -443,8 +446,8 @@
   function resizeFont($marker) {
 
     // Update marker font size in real-time
-    var width = $marker.width();  // Call the method with ()
-    var height = $marker.height(); // Call the method with ()
+    var width = $marker.width(); 
+    var height = $marker.height();
                 
     // Base calculation on width for tall markers
     var fontSize;
@@ -487,7 +490,9 @@
       },
       resize: function(event, ui) {
         // Update marker font size in real-time
-        resizeFont($(this));
+        if ($(this).hasClass('has-title')) {
+          resizeFont($(this));
+        }
       },
       stop: function(event, ui) {
         $(this).removeClass('dme-marker-resizing');
@@ -608,6 +613,7 @@
         zIndex: 1000, // Ensure the dragged item appears above other elements
         opacity: 0.7, // Slightly transparent while dragging
         cursor: 'move',
+        containment: '.dme-container-wrapper',
         
         // When drag starts
         start: function(event, ui) {
@@ -652,16 +658,15 @@
           var containerOffset = $container.offset();
           var markerWidth = $(ui.helper).outerWidth();
           var markerHeight = $(ui.helper).outerHeight();
+          var safetyMargin = 2; // 1px safety margin.
           
           // Calculate right and bottom edges
-          var markerRight = ui.position.left + markerWidth;
-          var markerBottom = ui.position.top + markerHeight;
-          if (containerOffset && 
-            ui.position.left >= containerOffset.left && 
-            markerRight <= containerOffset.left + $container.width() &&
-            ui.position.top >= containerOffset.top && 
-            markerBottom <= containerOffset.top + $container.height()) {
-            
+          // Use ui.offset and include the safety margin on right and bottom.
+          if (containerOffset &&
+            ui.offset.left >= containerOffset.left &&
+            (ui.offset.left + markerWidth) <= (containerOffset.left + $container.width() + safetyMargin) &&
+            ui.offset.top >= containerOffset.top &&
+            (ui.offset.top + markerHeight) <= (containerOffset.top + $container.height() + safetyMargin)) {
             // Calculate position within the target container
             var relativeX = ui.offset.left - containerOffset.left;
             var relativeY = ui.offset.top - containerOffset.top;
@@ -672,8 +677,8 @@
               position: 'absolute',
               left: relativeX + 'px',
               top: relativeY + 'px'
-            });        
-            
+            });
+                                         
             // Calculate position as percentage of container size for responsive behavior
             var containerWidth = $container.width();
             var containerHeight = $container.height();

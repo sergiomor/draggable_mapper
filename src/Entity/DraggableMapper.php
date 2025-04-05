@@ -41,11 +41,11 @@ use Drupal\Core\Entity\ContentEntityInterface;
  *     "owner" = "uid",
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/draggable_mapper/{draggable_mapper}",
- *     "add-form" = "/admin/structure/draggable_mapper/add",
-*     "edit-form" = "/admin/structure/draggable_mapper/{draggable_mapper}/edit",
- *     "delete-form" = "/admin/structure/draggable_mapper/{draggable_mapper}/delete",
- *     "collection" = "/admin/structure/draggable_mapper",
+ *     "canonical" = "/draggable-mapper/{draggable_mapper}",
+ *     "add-form" = "/admin/structure/draggable-mapper/add",
+ *     "edit-form" = "/admin/structure/draggable-mapper/{draggable_mapper}/edit",
+ *     "delete-form" = "/admin/structure/draggable-mapper/{draggable_mapper}/delete",
+ *     "collection" = "/admin/structure/draggable-mapper",
  *   },
  *   field_ui_base_route = "entity.draggable_mapper.collection",
  * )

@@ -48,8 +48,6 @@
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-/*   width: 10%;
-  height: 10%; */
   user-select: none;
   display: flex;
   justify-content: center;
@@ -57,12 +55,12 @@
 }
 
 .dme-unmapped-marker {
-  margin: 5px;
+  margin: 6px;
 }
 
-.dme-unmapped-marker.has-title {
-  width: 10%;
-  height: auto;
+.dme-marker.has-title {
+  width: 100px;
+  height: 50px;
 }
 
 .dme-marker-icon {
@@ -75,7 +73,7 @@
 }
 
 .dme-no-markers-message {
-  padding: 6px;
+  padding: 20px;
   font-style: italic;
   color: #666;
   width: 100%;
@@ -98,7 +96,7 @@
 .dme-marker-wrapper {
   width: 100%;
   height: 100%;
-  padding: 0.5em;
+  padding: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -112,7 +110,6 @@
   max-width: 100%;
   height: auto;
   display: block;
-  margin: 0 auto;
 }
 
 /* Inline Entity Form integration */
@@ -158,10 +155,6 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
-}
-
-.empty-container {
-  display: none;
 }
 
 .dme-loading {
