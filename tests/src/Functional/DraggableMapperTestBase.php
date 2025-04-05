@@ -137,5 +137,4 @@ abstract class DraggableMapperTestBase extends BrowserTestBase {
     }
     return \Drupal::service('file_system')->realpath($path);
   }
-
 }

@@ -589,6 +589,14 @@
    * Initialize draggability for marker elements
    */
   function initDraggableMarkers(context) {
+    // Wait until jQuery UI's draggable method is available
+    if (typeof $.fn.draggable !== 'function') {
+      // Retry after a short delay
+      setTimeout(function () {
+        initDraggableMarkers(context);
+      }, 100);
+      return;
+    }
     // Get all markers and make them draggable
     once('draggable', '.dme-marker', context).forEach(function(marker) {
       var $marker = $(marker);
