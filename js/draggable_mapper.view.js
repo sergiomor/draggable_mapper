@@ -89,7 +89,7 @@
       $('.dme-marker-modal').hide();
       
       // Show the modal
-      $modal.show();
+      $modal.show().addClass('opened');
       
       // Add keyboard event listener for escape key
       $(document).on('keydown.dme-modal', function(e) {
@@ -103,6 +103,7 @@
     $modal.find('.dme-modal-close').on('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
+      $modal.hide().removeClass('opened');
       closeAllModals();
     });
     
@@ -119,7 +120,7 @@
    * Close all modals and remove event listeners
    */
   function closeAllModals() {
-    $('.dme-marker-modal').hide();
+    $('.dme-marker-modal').hide().removeClass('opened');;
     $(document).off('keydown.dme-modal');
     $(document).off('click.dme-modal-outside');
   }

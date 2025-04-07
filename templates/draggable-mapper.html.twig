@@ -31,7 +31,7 @@
       <div class="dme-container">
         <div class="dme-container-wrapper">
           <div class="dme-image">
-            <img src="{{ map_image_url }}" alt="{{ draggable_mapper.label }}" class="dme-map-image" />
+            <img src="{{ map_image_url }}" alt="{{ map_alt }}" class="dme-map-image" />
           </div>
           
           {% if markers %}
@@ -42,7 +42,7 @@
                     {% if marker.description %}data-has-description="true" data-marker-id="{{ loop.index }}"{% endif %}>
                 <div class="dme-marker-wrapper">
                   {% if marker.icon_url %}
-                    <img src="{{ marker.icon_url }}" alt="{{ marker.title|default('Marker') }}" />
+                    <img src="{{ marker.icon_url }}" alt="{{ marker.icon_alt }}" />
                   {% else %}
                     {{ marker.title }}
                   {% endif %}

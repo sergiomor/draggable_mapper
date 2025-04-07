@@ -1,12 +1,13 @@
-draggable_mapper.form:
+simulate:
   version: 1.x
-  css:
-    theme:
-      css/draggable_mapper.form.css: {}
   js:
-    js/draggable_mapper.form.js: {}
+    js/jquery.simulate.js: {}
+    js/jquery.simulate.drag-n-drop.js: {}
   dependencies:
     - core/jquery
     - core/drupal
     - core/once
     - core/drupalSettings
+    - jquery_ui_draggable/draggable
+    - jquery_ui_droppable/droppable
+    - jquery_ui_resizable/resizable

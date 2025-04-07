@@ -43,6 +43,11 @@
       // Make markers draggable
       initDraggableMarkers(context);
 
+      // Initialize the Container as Droppable
+      $('.dme-container-wrapper').droppable({
+        accept: '.dme-marker'
+      });
+
       // Check for existing uploaded marker icons on page load
       once('check-existing-icons', 'body', context).forEach(function() {
         initializeExistingMarkerIcons();

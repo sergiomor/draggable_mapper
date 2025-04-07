@@ -20,7 +20,6 @@ abstract class DraggableMapperTestBase extends BrowserTestBase {
    */
   protected static $modules = [
     'draggable_mapper',
-    'draggable_mapper_test',
     'node',
     'field',
     'field_ui',
@@ -100,13 +99,13 @@ abstract class DraggableMapperTestBase extends BrowserTestBase {
       'files[field_dme_image_0]' => $image_path,
     ];
     $this->submitForm($edit, 'Upload');
-    
+    $this->getSession()->wait(1000);
     // After the image is uploaded, complete the form
     $edit = [
       'field_dme_image[0][alt]' => 'Map image for ' . $name,
       'field_dme_marker[0][subform][field_dme_marker_title][0][value]' => 'Test Marker',
     ];
-    
+    $this->getSession()->wait(1000);
     // Save the entity
     $this->submitForm($edit, 'Save');
     
@@ -119,7 +118,6 @@ abstract class DraggableMapperTestBase extends BrowserTestBase {
       ->sort('created', 'DESC')
       ->range(0, 1);
     $entity_id = $query->execute();
-    //print "CURRENT URL: " . $entity_id . "\n";
     return !empty($entity_id) ? reset($entity_id) : NULL;
   }
 

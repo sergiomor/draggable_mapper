@@ -51,6 +51,9 @@ class DraggableMapperPreprocessHook {
       $image_file = File::load($entity->get('field_dme_image')->target_id);
       if ($image_file) {
         $variables['map_image_url'] = \Drupal::service('file_url_generator')->generateString($image_file->getFileUri());
+        // Get alt text from image field configuration
+        $map_alt = $entity->get('field_dme_image')->alt ?? 'Map image';
+        $variables['map_alt'] = !empty($map_alt) ? $map_alt : 'Map image';
       }
     }
     
@@ -126,6 +129,10 @@ class DraggableMapperPreprocessHook {
           $icon_file = File::load($paragraph->get('field_dme_marker_icon')->target_id);
           if ($icon_file) {
             $marker['icon_url'] = \Drupal::service('file_url_generator')->generateString($icon_file->getFileUri());
+            
+            // Get alt text from image field configuration
+            $icon_alt = $paragraph->get('field_dme_marker_icon')->alt ?? 'Marker icon';
+            $marker['icon_alt'] = !empty($icon_alt) ? $icon_alt : 'Marker icon';
           }
         }
         

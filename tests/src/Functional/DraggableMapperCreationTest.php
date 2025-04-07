@@ -16,7 +16,6 @@ class DraggableMapperCreationTest extends DraggableMapperTestBase {
     // Test creating a basic entity
     $entity_id = $this->createBasicEntity('Test Basic Entity');
     $this->assertNotEmpty($entity_id, 'Entity was created successfully with an ID');
-    //print "CURRENT ENTITY ID: " . $entity_id . "\n";
     // Verify we can view the entity
     if (!empty($entity_id)) {
       $this->drupalGet("draggable-mapper/{$entity_id}");
@@ -68,4 +67,4 @@ class DraggableMapperCreationTest extends DraggableMapperTestBase {
     $this->drupalGet("admin/structure/draggable-mapper/{$entity_id}");
     $this->assertEquals(404, $this->getSession()->getStatusCode(), 'Entity no longer exists');
   }
-}
+ }

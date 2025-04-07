@@ -10,8 +10,8 @@ draggable_mapper.view:
     - core/drupal
     - core/once
     - core/drupalSettings
-    - jquery_ui_draggable/jquery_ui_draggable
-    - jquery_ui_resizable/jquery_ui_resizable
+    - jquery_ui_draggable/draggable
+    - jquery_ui_resizable/resizable
 
 draggable_mapper.form:
   version: 1.x
@@ -25,6 +25,6 @@ draggable_mapper.form:
     - core/drupal
     - core/once
     - core/drupalSettings
-    - jquery_ui_draggable/jquery_ui_draggable
-    - jquery_ui_droppable/jquery_ui_droppable
-    - jquery_ui_resizable/jquery_ui_resizable
+    - jquery_ui_draggable/draggable
+    - jquery_ui_droppable/droppable
+    - jquery_ui_resizable/resizable

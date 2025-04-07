@@ -1,24 +1,12 @@
 <?php
 
 /**
- * @file
- * Contains draggable_mapper_test.module.
+ * Implements hook_page_attachments().
  */
-
-/**
- * Implements hook_library_info_alter().
- */
-function draggable_mapper_test_library_info_alter(&$libraries, $extension) {
-  // For testing, ensure the correct jQuery UI modules are used
-  if ($extension === 'draggable_mapper' && isset($libraries['form'])) {
-    // Replace with explicit dependencies on the new jQuery UI modules
-    $libraries['form']['dependencies'] = [
-      'core/jquery',
-      'core/drupal',
-      'core/once',
-      'core/drupalSettings',
-      'jquery_ui_draggable/jquery_ui_draggable',
-      'jquery_ui_droppable/jquery_ui_droppable',
-    ];
-  }
+function draggable_mapper_test_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'draggable_mapper_test/simulate';
+  // Ensure these match exactly the library names provided by the modules.
+  $attachments['#attached']['library'][] = 'jquery_ui_draggable/draggable';
+  $attachments['#attached']['library'][] = 'jquery_ui_droppable/droppable';
+  $attachments['#attached']['library'][] = 'jquery_ui_resizable/resizable';
 }
