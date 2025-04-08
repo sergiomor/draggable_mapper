@@ -14,7 +14,7 @@ class DraggableMapperJsMapPreviewTest extends DraggableMapperJsTestBase {
    */
   public function testMapPreview() {
 
-     // 1. Start filling entity creation form
+     // 1. Start filling entity creation form.
     $name = 'Preview Test Map';
     $marker1 = 'Test Marker 1';
     $marker2 = 'Test Marker 2';
@@ -30,27 +30,24 @@ class DraggableMapperJsMapPreviewTest extends DraggableMapperJsTestBase {
       'alt',
       'Map Image'
     );
-
     $this->addTextMarker($marker1);
-    // Wait for text marker
+
+    // Wait for text marker.
     $this->getSession()->wait(1000);
     $this->addIconMarker($marker2, 'Marker Icon');
-    // Verify text marker preview
+
+    // Verify text marker preview.
     $this->assertSession()->waitForElement('css', '.dme-marker:nth-child(1)');
     $this->assertSession()->elementContains('css', '.dme-marker:nth-child(1)', $marker1);
 
-    // Verify icon marker preview
+    // Verify icon marker preview.
     $this->assertSession()->waitForElement('css', '.dme-marker:nth-child(2) img');
     $this->assertSession()->elementExists(
       'css',
       '.dme-unmapped-wrapper .dme-marker:nth-child(2) img[alt*="Marker Icon"]'
     );
 
-    $page = $this->getSession()->getPage();
-$html = $page->getContent();
-//print($html);
-
-    // Final count verification
+    // Final count verification.
     $this->assertSession()->elementsCount(
       'css',
       '.dme-unmapped-wrapper .dme-marker',

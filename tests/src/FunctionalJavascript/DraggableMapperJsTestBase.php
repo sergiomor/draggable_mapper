@@ -53,7 +53,7 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    // Create admin user with necessary permissions
+    // Create admin user with necessary permissions.
     $this->adminUser = $this->drupalCreateUser([
       'administer draggable mapper',
       'add draggable mapper',
@@ -82,11 +82,11 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
       $image_path = $this->createTestImage();
       $this->assertFileExists($image_path);
       
-      // Fill in the basic information
+      // Fill in the basic information.
       $this->getSession()->getPage()->findField('name[0][value]')->setValue($name);
       $this->getSession()->getPage()->attachFileToField('files[field_dme_image_0]', $image_path);
       
-      // After the image is uploaded, complete the form
+      // After the image is uploaded, complete the form.
       $this->assertSession()->waitForField('field_dme_image[0][alt]');
       $this->getSession()->getPage()->fillField('field_dme_image[0][alt]', $name);
     }
@@ -198,7 +198,7 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
             'field_dme_marker[' . $index . '][subform][field_dme_marker_icon][0][alt]', $alt_text
         );
         
-        // Wait for final AJAX completion
+        // Wait for final AJAX completion.
         $this->assertSession()->waitForElementRemoved('css', '.ajax-progress');
       }
 
@@ -212,7 +212,8 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
      * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
      */
       protected function getCreatedEntityId() {
-        // Extract the entity ID 
+        
+        // Extract the entity ID.
         $query = \Drupal::entityQuery('draggable_mapper')
           ->accessCheck(TRUE)
           ->sort('created', 'DESC')
@@ -234,7 +235,8 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
      *   If image creation or file write fails
      */
       protected function createTestImage(string $filename = 'test_image.png'): string {
-      // Create image.
+      
+        // Create image.
       $image = imagecreatetruecolor(100, 100);
       $bg_color = imagecolorallocate($image, 220, 220, 220);
       imagefill($image, 0, 0, $bg_color);
@@ -284,7 +286,7 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
        * being properly initialized. Provides error checking and debug logging.
        */
       protected function ensureDrupalBehaviors() {
-        // Check Drupal object existence
+        // Check Drupal object existence.
         $this->assertTrue($this->getSession()->evaluateScript(
             "return typeof Drupal !== 'undefined'"
         ), 'Drupal object exists');
@@ -299,7 +301,7 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
             })();
         JS);
         
-        // Wait for behaviors to complete
+        // Wait for behaviors to complete.
         $this->getSession()->wait(1000);
       }
 
@@ -326,11 +328,11 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
                     return false;
                 }
 
-                // Calculate positions
+                // Calculate positions.
                 const markerRect = marker.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
                 
-                // Create and dispatch events
+                // Create and dispatch events.
                 const dragStart = new MouseEvent('mousedown', {
                     bubbles: true,
                     clientX: markerRect.left + offset,
@@ -359,7 +361,7 @@ abstract class DraggableMapperJsTestBase extends WebDriverTestBase {
         $success = $this->getSession()->evaluateScript($script);
         $this->assertTrue($success, "Drag simulation for marker $markerIndex failed");
         
-        // Wait for coordinates to update
+        // Wait for coordinates to update.
         $this->assertSession()->waitForElement(
             'css',
             "[name='field_dme_marker[{$markerIndex}][subform][field_dme_marker_coordinates][0][value]']"
