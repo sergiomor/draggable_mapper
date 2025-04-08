@@ -12,7 +12,7 @@
 
 .dme-unmapped-wrapper {
   position: relative;
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
   max-width: 100%;
   margin: 10px 0;
   padding: 5px;
@@ -24,7 +24,7 @@
   margin-top: 1rem;
   position: relative;
   display: block;
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
   max-width: 100%;
 }
 
@@ -43,7 +43,7 @@
   font-size: 12px;
   font-weight: bold;
   cursor: move;
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -52,6 +52,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s ease, visibility 0s linear 1s; 
+}
+
+.dme-marker.visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 1s ease, visibility 0s linear 0s;
 }
 
 .dme-unmapped-marker {
@@ -103,6 +112,18 @@
   text-align: center;
   overflow: hidden;
   line-height: 1;
+  overflow: hidden;
+}
+
+.dme-marker-wrapper .marker-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 4; 
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-height: 100%;
 }
 
 .dme-marker img,
@@ -136,9 +157,15 @@
 
 /* Animation for marker updates */
 @keyframes marker-update {
-  0% { transform: scale(1) translate(-50%, -50%); }
-  50% { transform: scale(1.5) translate(-50%, -50%); }
-  100% { transform: scale(1) translate(-50%, -50%); }
+  0% {
+    transform: scale(1) translate(-50%, -50%);
+}
+  50% {
+    transform: scale(1.5) translate(-50%, -50%);
+}
+  100% {
+    transform: scale(1) translate(-50%, -50%);
+}
 }
 
 .dme-marker-updated {

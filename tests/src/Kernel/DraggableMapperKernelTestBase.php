@@ -32,6 +32,9 @@ class DraggableMapperKernelTestBase extends KernelTestBase {
     'text',
   ];
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
 
     // Set up schema and config.
@@ -43,19 +46,19 @@ class DraggableMapperKernelTestBase extends KernelTestBase {
     $this->installEntitySchema('file');
     $this->installSchema('file', ['file_usage']);
 
-    // Add field definitions for the paragraph type
+    // Add field definitions for the paragraph type.
     $this->installEntitySchema('paragraph');
     $this->installConfig(['field', 'draggable_mapper']);
 
   }
 
-    /**
+  /**
    * Creates a test image file for use in draggable mapper entities.
-   * 
+   *
    * This helper method:
    * 1. Ensures the public files directory exists
    * 2. Creates a minimal 1x1 transparent PNG image
-   * 3. Creates and saves a permanent File entity
+   * 3. Creates and saves a permanent File entity.
    *
    * @return \Drupal\file\Entity\File
    *   The created file entity ready for use in tests.
@@ -65,8 +68,9 @@ class DraggableMapperKernelTestBase extends KernelTestBase {
     // Prepare directory structure.
     $directory = 'public://';
     $file_system = \Drupal::service('file_system');
-    $file_system->prepareDirectory($directory, 1); // 1 = FILE_CREATE_DIRECTORY
-    
+    // 1 = FILE_CREATE_DIRECTORY
+    $file_system->prepareDirectory($directory, 1);
+
     // Create a dummy image file with minimal content.
     $image_path = 'public://dummy-map.png';
     file_put_contents($image_path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='));
@@ -81,15 +85,15 @@ class DraggableMapperKernelTestBase extends KernelTestBase {
 
   /**
    * Creates a basic draggable mapper entity through the UI.
-   * 
+   *
    * @param string $title
-   * Base name used for marker title
+   *   Base name used for marker title.
    *
    * @return Drupal\draggable_mapper\Entity\DraggableMapper|null
    *   The entity or NULL if creation failed.
    */
-  public function CreateEntity(string $title) {
-    
+  public function createEntity(string $title) {
+
     // Create an image for the mapper.
     $file = $this->createTestImageFile();
 

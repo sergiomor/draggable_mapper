@@ -14,18 +14,18 @@ class DraggableMapperJsMapPreviewTest extends DraggableMapperJsTestBase {
    */
   public function testMapPreview() {
 
-     // 1. Start filling entity creation form.
+    // 1. Start filling entity creation form.
     $name = 'Preview Test Map';
     $marker1 = 'Test Marker 1';
     $marker2 = 'Test Marker 2';
     $this->drupalGet('admin/structure/draggable-mapper/add');
     $this->fillsBaseFields($name);
 
-    // Wait for the image preview to appear
+    // Wait for the image preview to appear.
     $this->assertSession()->waitForElement('css', '.dme-image-wrapper img[alt="' . $name . '"]');
 
     $this->assertSession()->elementAttributeContains(
-      'css', 
+      'css',
       '.dme-image-wrapper img',
       'alt',
       'Map Image'
@@ -54,4 +54,5 @@ class DraggableMapperJsMapPreviewTest extends DraggableMapperJsTestBase {
       2
     );
   }
+
 }

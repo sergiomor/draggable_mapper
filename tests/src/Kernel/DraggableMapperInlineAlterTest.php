@@ -12,15 +12,13 @@ use Drupal\Core\Form\FormState;
 class DraggableMapperInlineAlterTest extends DraggableMapperKernelTestBase {
 
   /**
-   * Tests that the inline entity form alter hook adds the preview container
-   * and sets coordinate fields as hidden for marker paragraphs. 
-   * Also tests if the librarry is attached.
+   * Tests the inline entity form alter hook.
    */
   public function testFormAlterHook() {
 
     // Create a Draggable Mapper entity.
     $title = "Test Hook Mapper";
-    $draggable_mapper = $this->CreateEntity($title);
+    $draggable_mapper = $this->createEntity($title);
 
     // Simulate building the form.
     $form_object = \Drupal::entityTypeManager()
@@ -50,7 +48,7 @@ class DraggableMapperInlineAlterTest extends DraggableMapperKernelTestBase {
     $form['field_dme_marker']['widget'][0]['subform']['field_dme_marker_x']['widget'][0]['value'] = [
       '#type' => 'hidden',
     ];
-    
+
     // Confirm sets coordinate fields as hidden.
     $widget = $form['field_dme_marker']['widget'][0]['subform']['field_dme_marker_x']['widget'][0]['value'];
     $this->assertEquals('hidden', $widget['#type'], 'Field dme_marker_x is hidden.');

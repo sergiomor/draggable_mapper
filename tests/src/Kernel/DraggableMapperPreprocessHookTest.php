@@ -5,7 +5,7 @@ namespace Drupal\Tests\draggable_mapper\Kernel;
 use Drupal\draggable_mapper\Entity\DraggableMapper;
 use Drupal\Core\Render\Element;
 use Drupal\paragraphs\Entity\ParagraphsType;
-use \Drupal\draggable_mapper\PreprocessHooks\DraggableMapperPreprocessHook;
+use Drupal\draggable_mapper\PreprocessHooks\DraggableMapperPreprocessHook;
 use Drupal\paragraphs\Entity\Paragraph;
 
 /**
@@ -23,11 +23,13 @@ class DraggableMapperPreprocessHookTest extends DraggableMapperKernelTestBase {
     // Create a dummy draggable mapper entity.
     $mapper = DraggableMapper::create([
       'name' => 'Test Mapper',
-      // We deliberately leave fields like field_dme_image and field_dme_marker empty.
+      // We deliberately leave fields like field_dme_image
+      // and field_dme_marker empty.
     ]);
     $mapper->save();
 
-    // Build a simulated "elements" array like what would be passed to a Twig template.
+    // Build a simulated "elements" array
+    // like what would be passed to a Twig template.
     $variables = [];
 
     // Make sure the preprocess hook can get the entity via #draggable_mapper.
@@ -35,13 +37,14 @@ class DraggableMapperPreprocessHookTest extends DraggableMapperKernelTestBase {
       '#draggable_mapper' => $mapper,
       '#view_mode' => 'full',
 
-      // Simulate that there are child elements. The preprocess hook uses Element::children().
+      // Simulate that there are child elements.
+      // The preprocess hook uses Element::children().
       'child1' => ['#markup' => 'Some child markup'],
     ];
 
     // Optionally, prepare empty attributes array.
     $variables['attributes'] = [];
-    
+
     // Now call the preprocess hook.
     DraggableMapperPreprocessHook::preprocessDraggableMapper($variables);
 
@@ -66,37 +69,38 @@ class DraggableMapperPreprocessHookTest extends DraggableMapperKernelTestBase {
     // Since no map image was provided, map_image_url should be empty.
     $this->assertEmpty($variables['map_image_url'], 'Map image URL is empty.');
 
-    // Since no marker entities were provided via field_dme_marker, markers should be empty.
+    // Since no marker entities were provided via field_dme_marker,
+    // markers should be empty.
     $this->assertEmpty($variables['markers'], 'Markers array is empty.');
   }
 
-    /**
-     * Tests map image being included in variables.
-    */
-    public function testMapImageIsIncludedInVariables() {
+  /**
+   * Tests map image being included in variables.
+   */
+  public function testMapImageIsIncludedInVariables() {
     // Create a test file entity.
     $file = $this->createTestImageFile();
 
     // Create a draggable mapper entity with image field.
     $entity = DraggableMapper::create([
-        'type' => 'default',
-        'title' => 'Test Map',
-        'field_dme_image' => [
+      'type' => 'default',
+      'title' => 'Test Map',
+      'field_dme_image' => [
         'target_id' => $file->id(),
         'alt' => 'Alt text',
-        ],
+      ],
     ]);
     $entity->save();
 
     // Build renderable elements array like what would be in the theme layer.
     $elements = [
-        '#draggable_mapper' => $entity,
-        '#view_mode' => 'full',
+      '#draggable_mapper' => $entity,
+      '#view_mode' => 'full',
     ];
 
     $variables = [
-        'elements' => $elements,
-        'attributes' => [],
+      'elements' => $elements,
+      'attributes' => [],
     ];
 
     // Run the preprocess function.
@@ -105,60 +109,61 @@ class DraggableMapperPreprocessHookTest extends DraggableMapperKernelTestBase {
     // Assert image url and alt text are included in the variables.
     $this->assertNotEmpty($variables['map_image_url'], 'Map image URL is set.');
     $this->assertEquals('Alt text', $variables['map_alt'] ?? NULL, 'Alt text is set correctly.');
+  }
+
+  /**
+   * Tests a marker with a title gets included.
+   */
+  public function testMarkerWithTitleIsIncluded() {
+
+    // Create the paragraph type first.
+    if (!ParagraphsType::load('dme_marker')) {
+      ParagraphsType::create([
+        'id' => 'dme_marker',
+        'label' => 'Marker',
+      ])->save();
     }
 
-    /**
-     * Tests a marker with a title gets included.
-     */
-    public function testMarkerWithTitleIsIncluded() {
+    // Create a marker paragraph.
+    $paragraph = Paragraph::create([
+      'type' => 'dme_marker',
+      'field_dme_marker_title' => 'My Marker',
+      'field_dme_marker_x' => 0.5,
+      'field_dme_marker_y' => 0.5,
+      'field_dme_marker_width' => 0.2,
+      'field_dme_marker_height' => 0.2,
+    ]);
+    $paragraph->save();
 
-        // Create the paragraph type first
-        if (!ParagraphsType::load('dme_marker')) {
-            ParagraphsType::create([
-                'id' => 'dme_marker',
-                'label' => 'Marker',
-            ])->save();
-        }
+    // Create the draggable mapper entity with one marker.
+    $entity = DraggableMapper::create([
+      'type' => 'default',
+      'title' => 'Map With Marker',
+      'field_dme_marker' => [$paragraph],
+    ]);
+    $entity->save();
 
-        // Create a marker paragraph.
-        $paragraph = Paragraph::create([
-        'type' => 'dme_marker',
-        'field_dme_marker_title' => 'My Marker',
-        'field_dme_marker_x' => 0.5,
-        'field_dme_marker_y' => 0.5,
-        'field_dme_marker_width' => 0.2,
-        'field_dme_marker_height' => 0.2,
-        ]);
-        $paragraph->save();
+    $elements = [
+      '#draggable_mapper' => $entity,
+      '#view_mode' => 'full',
+    ];
 
-        // Create the draggable mapper entity with one marker.
-        $entity = DraggableMapper::create([
-        'type' => 'default',
-        'title' => 'Map With Marker',
-        'field_dme_marker' => [$paragraph],
-        ]);
-        $entity->save();
+    $variables = [
+      'elements' => $elements,
+      'attributes' => [],
+    ];
 
-        $elements = [
-        '#draggable_mapper' => $entity,
-        '#view_mode' => 'full',
-        ];
+    DraggableMapperPreprocessHook::preprocessDraggableMapper($variables);
 
-        $variables = [
-        'elements' => $elements,
-        'attributes' => [],
-        ];
-
-        DraggableMapperPreprocessHook::preprocessDraggableMapper($variables);
-
-        // The markers array should include our mapped marker since we provided valid coordinates.
-        $this->assertNotEmpty($variables['markers'], 'Markers array is not empty.');
-        $marker = reset($variables['markers']);
-        $this->assertEquals('My Marker', $marker['title'], 'Marker title is set correctly.');
-        $this->assertIsNumeric($marker['x'], 'Marker X coordinate is numeric.');
-        $this->assertIsNumeric($marker['y'], 'Marker Y coordinate is numeric.');
-        $this->assertIsNumeric($marker['width'], 'Marker width is numeric.');
-        $this->assertIsNumeric($marker['height'], 'Marker height is numeric.');
-    }
+    // The markers array should include our mapped marker
+    // since we provided valid coordinates.
+    $this->assertNotEmpty($variables['markers'], 'Markers array is not empty.');
+    $marker = reset($variables['markers']);
+    $this->assertEquals('My Marker', $marker['title'], 'Marker title is set correctly.');
+    $this->assertIsNumeric($marker['x'], 'Marker X coordinate is numeric.');
+    $this->assertIsNumeric($marker['y'], 'Marker Y coordinate is numeric.');
+    $this->assertIsNumeric($marker['width'], 'Marker width is numeric.');
+    $this->assertIsNumeric($marker['height'], 'Marker height is numeric.');
+  }
 
 }

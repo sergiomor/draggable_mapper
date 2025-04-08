@@ -23,37 +23,40 @@ class DraggableMapperJsModalTest extends DraggableMapperJsTestBase {
     $this->getSession()->wait(1000);
 
     // Get current marker index.
-    $markerIndex =  $this->getCurrentIndex() - 1;
+    $markerIndex = $this->getCurrentIndex() - 1;
 
     // Fill marker description.
     $this->getSession()->getPage()->findField('field_dme_marker[' . $markerIndex . '][subform][field_dme_marker_description][0][value]')->setValue('Test description');
-    
+
     // Drag the marker.
     $this->simulateMarkerDrag(
-        $markerIndex, 
-        50,  // x coordinate
-        50,  // y coordinate
-        5    // offset from element edges
+        $markerIndex,
+    // X coordinate.
+        50,
+    // Y coordinate.
+        50,
+    // Offset from element edges.
+        5
     );
     $this->assertSession()->waitForElement('css', '.dme-container-wrapper #dme-marker-' . $markerIndex, 5000);
-    
+
     // Verify that the marker is rendered inside the drop container.
     $this->assertSession()->elementExists('css', '.dme-container-wrapper #dme-marker-' . $markerIndex);
 
     // Save the entity.
     $this->pressButton('Save');
-    
-    // Get the entity page
+
+    // Get the entity page.
     $this->drupalGet('draggable-mapper/' . $this->getCreatedEntityId());
     $this->getSession()->wait(1000);
-    
+
     // Check if the marker exits.
     $this->assertSession()->pageTextContains('Text Marker');
-    
+
     // Get correspondant modal.
-    $marker= $this->getSession()->getPage()->find('css', '[data-marker-id="' . $markerIndex + 1 . '"]');
+    $marker = $this->getSession()->getPage()->find('css', '[data-marker-id="' . $markerIndex + 1 . '"]');
     $innerMarker = $marker->find('css', '.dme-marker-wrapper');
-    
+
     // Click on marker.
     $innerMarker->click();
 
@@ -72,13 +75,13 @@ class DraggableMapperJsModalTest extends DraggableMapperJsTestBase {
         ),
         'Modal should have opened class'
     );
-        
+
     // Verify content.
     $this->assertSession()->elementTextContains(
         'css',
         "#{$modalId} .dme-modal-body",
         'Test description'
     );
-   }
+  }
 
 }

@@ -7,7 +7,7 @@
  * - draggable_mapper: The Draggable Mapper.
  * - map_image_url: URL to the map image.
  * - map_alt: map image alt text
- * - markers: Array of marker data with title, coordinates and optional images/descriptions.
+ * - markers: Array of marker data with title, coordinates and optional/descriptions.
  * - content: All items for this entity.
  * - title: The title of the entity.
  * - view_mode: The view mode of the entity.
@@ -37,7 +37,7 @@
           
           {% if markers %}
             {% for marker in markers %}
-              <div class="dme-marker dme-mapped-marker{% if marker.icon_url %} dme-marker-icon{% endif %}" 
+              <div class="dme-marker dme-marker-{{ loop.index }} dme-mapped-marker{% if marker.icon_url %} dme-marker-icon{% else %} dme-marker-text{% endif %}" 
                     style="left: {{ marker.x }}%; top: {{ marker.y }}%; width: {{ marker.width }}%; height: {{ marker.height }}%;"
                     {% if marker.icon_url and marker.title %}title="{{ marker.title }}"{% endif %}
                     {% if marker.description %}data-has-description="true" data-marker-id="{{ loop.index }}"{% endif %}>

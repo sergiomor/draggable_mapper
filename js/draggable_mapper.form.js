@@ -53,12 +53,6 @@
         initializeExistingMarkerIcons();
       });
 
-      // Set initial height for unmapped markers
-     // setUnmappedMarkerHeight();
-
-      // Update marker heights when window is resized
-     // $(window).on('resize', setUnmappedMarkerHeight);
-
       // Process marker title fields
       once('marker-title-handler', '.field--name-field-dme-marker-title input[type="text"]', context).forEach(function(titleInput) {
         // Initialize the marker with current value or default
@@ -131,10 +125,7 @@
           // Check if image exists using multiple methods
           const imgElements = $('.field--name-field-dme-image img');
           const imgInputs = $('input[name^="field_dme_image"][name$="[fids]"][value!=""]');
-          
           const hasImage = imgElements.length > 0 || imgInputs.length > 0;
-
-          console.log(hasImage);
           
           // Update wrapper visibility based on image presence
           if (hasImage) {
@@ -219,7 +210,7 @@
         $('#dme-marker-' + delta).addClass('has-title');
       } else if (!$marker.hasClass('dme-marker-icon')) {
         // Update the title if it's not an icon marker
-        $marker.find('.dme-marker-wrapper').text(displayTitle);
+        $marker.find('.dme-marker-wrapper').html('<span class="marker-text">' + displayTitle + '</span>');
         $marker.addClass('has-title');
       }
     }
@@ -456,11 +447,8 @@
                 
     // Base calculation on width for tall markers
     var fontSize;
-    var aspectRatio = width / height;
-    console.log(aspectRatio);
-                
-                
-    if (aspectRatio < 3) {
+    var aspectRatio = width / height;                       
+    if (aspectRatio < 2.5) {
       fontSize = width * 0.1;
     } else {
       var smallestDimension = Math.min(width, height);
@@ -605,6 +593,8 @@
     // Get all markers and make them draggable
     once('draggable', '.dme-marker', context).forEach(function(marker) {
       var $marker = $(marker);
+      // Fade in the marker with animation
+      $marker.addClass('visible');
       $(marker).draggable({
         // Create a clone for dragging to make transitions smoother
         helper: function() {
@@ -626,7 +616,6 @@
         zIndex: 1000, // Ensure the dragged item appears above other elements
         opacity: 0.7, // Slightly transparent while dragging
         cursor: 'move',
-        containment: '.dme-container-wrapper',
         
         // When drag starts
         start: function(event, ui) {
@@ -755,25 +744,22 @@
             // Check if this was the last marker in the unmapped wrapper
             checkForEmptyUnmappedWrapper();
           }
-          
           // Remove any hover effects
           $container.removeClass('dme-drop-hover');
         }
       });
     });
   }
-  
   /**
    * Check if the unmapped wrapper is empty and show the "no markers" message with fade-in effect if it is
    */
   function checkForEmptyUnmappedWrapper() {
     var $unmappedContainer = $('.dme-unmapped-wrapper');
-    
     // If there are no more markers in the unmapped wrapper
     if ($unmappedContainer.find('.dme-marker').length === 0) {
       // If the message doesn't exist, add it with fade in effect
       if ($unmappedContainer.find('.dme-no-markers-message').length === 0) {
-        var $message = $('<div class="dme-no-markers-message" style="display: none;">' + 
+        var $message = $('<div class="dme-no-markers-message" style="display: none;">' +
                       Drupal.t('Add new markers to be mapped') + '</div>');
         $unmappedContainer.append($message);
         $message.fadeIn(400);

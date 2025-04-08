@@ -3,10 +3,6 @@
 namespace Drupal\Tests\draggable_mapper\Functional;
 
 use Drupal\Tests\BrowserTestBase;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\node\Entity\NodeType;
-use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\field\Entity\FieldConfig;
 
 /**
  * Base class for draggable mapper functional  tests.
@@ -58,7 +54,7 @@ abstract class DraggableMapperTestBase extends BrowserTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    // Create admin user with necessary permissions
+    // Create admin user with necessary permissions.
     $this->adminUser = $this->drupalCreateUser([
       'administer draggable mapper',
       'add draggable mapper',
@@ -70,7 +66,7 @@ abstract class DraggableMapperTestBase extends BrowserTestBase {
     ]);
     $this->drupalLogin($this->adminUser);
 
-    // Create a test image for later use
+    // Create a test image for later use.
     $this->testImagePath = $this->createTestImage();
   }
 
@@ -89,11 +85,11 @@ abstract class DraggableMapperTestBase extends BrowserTestBase {
 
     // Create a test image to use for the map.
     $image_path = $this->createTestImage();
-    
+
     // Go to the entity creation form.
     $this->drupalGet('admin/structure/draggable-mapper/add');
     $this->assertSession()->statusCodeEquals(200);
-    
+
     // Fill in the basic information.
     $edit = [
       'name[0][value]' => $name,
@@ -109,11 +105,11 @@ abstract class DraggableMapperTestBase extends BrowserTestBase {
 
     // Save the entity.
     $this->submitForm($edit, 'Save');
-    
+
     // Verify save was successful.
     $this->assertSession()->pageTextContains('The map ' . $name . ' has been saved.');
 
-    // Extract the entity ID. 
+    // Extract the entity ID.
     $query = \Drupal::entityQuery('draggable_mapper')
       ->accessCheck(TRUE)
       ->sort('created', 'DESC')
