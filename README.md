@@ -13,8 +13,6 @@ Draggable Mapper lets you place markers on an image map using a user-friendly dr
 - Resizable markers with responsive content
 - Support for marker titles, rich-text descriptions, and custom icons/images
 - Responsive design - maps work on all screen sizes
-- Simple integration with Drupal's field system
-- Separate view and edit experiences
 
 ## Use Cases
 
@@ -66,17 +64,15 @@ Create interactive diagrams with explanatory markers for educational content.
 1. Navigate to Structure > Draggable Mapper Entities > Add Draggable Mapper (`/admin/structure/draggable-mapper-entity/add`).
 2. Upload a map image.
 3. Add a title and description for your map.
-4. Save the map to start adding markers.
 
 ### Adding Markers
 
-1. Edit your map entity.
-2. Click "Add Marker" to create a new marker.
-3. Fill in the title and description for the marker.
-4. Drag the marker to the desired position on the map.
-5. Resize the marker to the desired size.
-6. Optionally, upload a custom icon for the marker.
-7. Save the form to update the marker's position and details.
+1. Click "Add Marker" to create a new marker.
+2. Fill in the title and description for the marker.
+3. Drag the marker to the desired position on the map.
+4. Resize the marker to the desired size.
+5. Optionally, upload a custom icon for the marker.
+6. Save the form to update the marker's position and details.
 
 ### Embedding Maps
 
