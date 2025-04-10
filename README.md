@@ -11,7 +11,7 @@ Draggable Mapper lets you place markers on an image map using a user-friendly dr
 - Custom entity type for map data
 - Drag-and-drop interface for marker placement
 - Resizable markers with responsive content
-- Support for marker titles, descriptions, and custom icons/images
+- Support for marker titles, rich-text descriptions, and custom icons/images
 - Responsive design - maps work on all screen sizes
 - Simple integration with Drupal's field system
 - Separate view and edit experiences
