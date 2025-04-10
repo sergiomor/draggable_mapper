@@ -49,8 +49,8 @@ Create interactive diagrams with explanatory markers for educational content.
 1. Download and extract the module to your `/modules/custom` directory.
 2. Install required modules using Composer:
 
-   ```bash
-composer require drupal/paragraphs drupal/inline_entity_form drupal/jquery_ui_draggable drupal/jquery_ui_droppable drupal/jquery_ui_resizable
+   ```
+   composer require drupal/paragraphs drupal/inline_entity_form drupal/jquery_ui_draggable drupal/jquery_ui_droppable drupal/jquery_ui_resizable
    ```
 
 3. Enable the module through the Drupal admin interface (`/admin/modules`) or using Drush:
