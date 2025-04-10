@@ -200,7 +200,7 @@
         return;
       }        
       // Get the input value, but use a default for the marker if empty
-      var inputValue = $.trim($titleInput.val());
+      var inputValue = $titleInput.val() ? $titleInput.val().trim() : '';
       var displayTitle = inputValue || Drupal.t('Untitled marker');
 
       // Create or update the marker, but only if there's no icon
@@ -215,18 +215,6 @@
       }
     }
   }
-
-  /**
- * Set the height of unmapped markers to equal to mapped markers
- */
-/*   function setUnmappedMarkerHeight() {
-    var $containerWrapper = $('.dme-container-wrapper');
-    if ($containerWrapper.length) {
-      var containerHeight = $containerWrapper.height();
-      var markerHeight = containerHeight * 0.1; // 10% of container height
-      $('.dme-unmapped-marker, .dme-no-markers-message').css('height', markerHeight + 'px');
-    }
-  }  */
  
   /**
    * Updates a marker icon based on the file input.
@@ -748,7 +736,6 @@
                       Drupal.t('Add new markers to be mapped') + '</div>');
         $unmappedContainer.append($message);
         $message.fadeIn(400);
-        //setUnmappedMarkerHeight();
       }
     }
   }
