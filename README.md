@@ -1,18 +1,18 @@
 # Draggable Mapper
 
-A Drupal module that provides a draggable map entity with interactive markers. This module allows content creators to easily create maps with interactive markers through a simple drag-and-drop interface.
+A Drupal module that provides a draggable mapper entity with interactive markers. This module allows content creators to easily create maps with interactive markers through a simple drag-and-drop interface.
 
 ## Overview
 
-Draggable Mapper lets you place markers on an image map using a user-friendly drag-and-drop interface. Each marker can contain a title, description, and custom icon. This allows for creating interactive maps that can be used for various purposes.
+Draggable Mapper lets you place markers on an image map using a user-friendly drag-and-drop interface. Each marker can contain a title, description, and custom icon/image. This allows for creating interactive maps that can be used for various purposes.
 
 ## Features
 
 - Custom entity type for map data
 - Drag-and-drop interface for marker placement
-- Support for marker titles, descriptions, and custom icons
+- Resizable markers with responsive content
+- Support for marker titles, descriptions, and custom icons/images
 - Responsive design - maps work on all screen sizes
-- Coordinates stored as percentages for responsive scaling
 - Simple integration with Drupal's field system
 - Separate view and edit experiences
 
@@ -76,10 +76,11 @@ Create interactive diagrams with explanatory markers for educational content.
 
 1. Edit your map entity.
 2. Click "Add Marker" to create a new marker.
-3. Drag the marker to the desired position on the map.
-4. Fill in the title and description for the marker.
-5. Optionally, upload a custom icon for the marker.
-6. Save the form to update the marker's position and details.
+3. Fill in the title and description for the marker.
+4. Drag the marker to the desired position on the map.
+5. Resize the marker to the desired size.
+6. Optionally, upload a custom icon for the marker.
+7. Save the form to update the marker's position and details.
 
 ### Embedding Maps
 
