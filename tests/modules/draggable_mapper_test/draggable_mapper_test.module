@@ -4,8 +4,6 @@
  * Implements hook_page_attachments().
  */
 function draggable_mapper_test_page_attachments(array &$attachments) {
-  $attachments['#attached']['library'][] = 'draggable_mapper_test/simulate';
-  // Ensure these match exactly the library names provided by the modules.
   $attachments['#attached']['library'][] = 'jquery_ui_draggable/draggable';
   $attachments['#attached']['library'][] = 'jquery_ui_droppable/droppable';
   $attachments['#attached']['library'][] = 'jquery_ui_resizable/resizable';

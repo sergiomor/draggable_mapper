@@ -43,7 +43,6 @@
   font-size: 12px;
   font-weight: bold;
   cursor: move;
-  border: 1px solid #ccc;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -104,8 +103,7 @@
 
 .dme-marker-wrapper {
   width: 100%;
-  height: 100%;
-  padding: 5px;
+  height: 100%; 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -170,6 +168,12 @@
 
 .dme-marker-updated {
   animation: marker-update 0.5s ease-in-out;
+}
+
+/* Resizability */
+.ui-icon {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
 }
 
 /* Accessibility enhancements */

@@ -28,7 +28,6 @@
   font-size: 12px;
   font-weight: bold;
   cursor: pointer;
-  border: 1px solid #ccc;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -71,7 +70,6 @@
 .dme-marker-wrapper {
   width: 100%;
   height: 100%;
-  padding: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -115,3 +113,4 @@
 .dme-modal-close:hover {
   color: #000;
 }
+

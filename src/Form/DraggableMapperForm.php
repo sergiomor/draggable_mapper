@@ -78,7 +78,6 @@ class DraggableMapperForm extends ContentEntityForm {
               isset($form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']['widget'])) {
             // Hide form element.
             $form['field_dme_marker']['widget'][$delta]['subform']['field_dme_marker_y']['widget'][0]['value']['#type'] = 'hidden';
-
           }
 
           // Handle width field.

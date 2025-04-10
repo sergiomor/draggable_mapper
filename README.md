@@ -18,6 +18,8 @@ Draggable Mapper lets you place markers on an image map using a user-friendly dr
 
 ## Use Cases
 
+![Diagram Form](images/diagram_form.png)
+
 ### Floor Plans and Building Maps
 Create interactive floor plans for buildings, malls, or campuses with points of interest that visitors can interact with. Perfect for architectural diagrams, evacuation plans, facility maps, and similar visual schematics.
 

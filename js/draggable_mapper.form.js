@@ -466,11 +466,18 @@
    * @param {Object} $marker - jQuery object for the marker element
    */
   function makeMarkerResizable($marker) {
+    // Wait until jQuery UI's resizable method is available
+    if (typeof $.fn.resizable !== 'function') {
+      // Retry after a short delay
+      setTimeout(function () {
+        makeMarkerResizable($marker);
+      }, 100);
+      return;
+    }
     // If marker is already resizable, destroy it first
     if ($marker.hasClass('ui-resizable')) {
       $marker.resizable('destroy');
     }
-
     $marker.resizable({
       //aspectRatio: true,
       aspectRatio: $marker.hasClass('dme-marker-icon') ? true : false,
@@ -503,17 +510,16 @@
             var markerHeight = ui.size.height;
             
             // Convert width to decimal between 0 and 1
-            var widthDecimal = (markerWidth / containerWidth).toFixed(4);
+            var widthDecimal = (markerWidth / containerWidth).toFixed(6);
             
             // Convert height to decimal between 0 and 1
-            var heightDecimal = (markerHeight / containerHeight).toFixed(4);
+            var heightDecimal = (markerHeight / containerHeight).toFixed(6);
             
             // Find and update the corresponding width input field
             $('input[name*="field_dme_marker_width"][name*="[' + delta + ']"]').val(widthDecimal);
             
             // Find and update the corresponding height input field
             $('input[name*="field_dme_marker_height"][name*="[' + delta + ']"]').val(heightDecimal);
-            
             // Store size information in custom data attributes for persistence
             $(this).attr('data-size-width', markerWidth);
             $(this).attr('data-size-height', markerHeight);
@@ -685,8 +691,8 @@
             var containerWidth = $container.width();
             var containerHeight = $container.height();
             
-            var posX = (relativeX / containerWidth).toFixed(4);
-            var posY = (relativeY / containerHeight).toFixed(4);
+            var posX = (relativeX / containerWidth).toFixed(6);
+            var posY = (relativeY / containerHeight).toFixed(6);
 
             // Update the hidden form fields with the new coordinates
             var $paragraphItem = $('.paragraph-type--dme-marker[data-delta="' + delta + '"], .paragraphs-subform[data-delta="' + delta + '"]');
@@ -718,28 +724,7 @@
             $marker.removeClass('dme-unmapped-marker').addClass('dme-mapped-marker');
 
             // Apply resizable behavior immediately after drop
-            if ($marker.hasClass('dme-marker-icon')) {
-              // For icon markers, use aspect ratio
-              $marker.resizable({
-                aspectRatio: true,
-                handles: 'all',
-                minWidth: 100,
-                containment: '.dme-container-wrapper',
-              });
-            } else {
-              // For text markers, don't use aspect ratio
-              $marker.resizable({
-                aspectRatio: false,
-                handles: 'all',
-                minHeight: 50,
-                minWidth: 100,
-                containment: '.dme-container-wrapper',
-                resize: function(event, ui) {
-                  // Update marker font size in real-time
-                  resizeFont($(this));
-                },
-              });
-            }
+            makeMarkerResizable($marker);
 
             // Check if this was the last marker in the unmapped wrapper
             checkForEmptyUnmappedWrapper();
